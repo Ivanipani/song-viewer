@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CssBaseline, Container, Box } from "@mui/material";
 import "./App.css";
 
-const API_URL = "http://canciones.poochella.club/canciones";
+const API_URL = "http://canciones.poochella.club";
 const fetchSongs = async () => {
-  const response = await fetch(`${API_URL}/songs`);
+  const response = await fetch(`${API_URL}/canciones`);
   const data = await response.json();
   return data;
 };
