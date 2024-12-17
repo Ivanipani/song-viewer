@@ -4,7 +4,7 @@ import "./App.css";
 
 const API_URL = "http://canciones.poochella.club";
 const fetchSongs = async () => {
-  const response = await fetch(`${API_URL}/canciones`);
+  const response = await fetch(`${API_URL}/canciones/`);
   const data = await response.json();
   return data;
 };
