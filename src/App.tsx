@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { CssBaseline, Container, Box, Typography, Button } from "@mui/material";
-import { Card, CardContent, CardActions } from "@mui/material";
 import { Howl } from "howler";
 import { fetchSongs, AudioFileRecord } from "./api/canciones";
 // function ColorAutocomplete({ onSubmit }) {
@@ -94,14 +93,14 @@ const Track = ({ audio }: TrackProps) => {
   );
 };
 
-interface Song {
-  id: number;
-  name: string;
-  duration: number;
-  url: string;
-  created_at: string;
-  updated_at: string;
-}
+// interface Song {
+//   id: number;
+//   name: string;
+//   duration: number;
+//   url: string;
+//   created_at: string;
+//   updated_at: string;
+// }
 
 function App() {
   const [songs, setSongs] = useState<AudioFileRecord[]>([]);
