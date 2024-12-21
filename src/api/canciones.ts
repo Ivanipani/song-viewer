@@ -32,7 +32,7 @@ export const fetchAudioCatalog = async (): Promise<AudioCatalog> => {
     const data = await response.text();
     const catalog = yaml.load(data) as AudioCatalog;
     catalog.songs.forEach((song) => {
-      song.url = `${API_URL}/canciones/canciones/${song.filename}`;
+      song.url = `${API_URL}/canciones/${song.filename}`;
     });
     return catalog;
   } catch (error) {
