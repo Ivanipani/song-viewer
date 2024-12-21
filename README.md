@@ -1,50 +1,27 @@
-# React + TypeScript + Vite
+# Song Viewer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+My personal song portfolio.
 
-Currently, two official plugins are available:
+## Deployment
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The backend for this project is an NGINX server. It serves the React frontend and the audio files.
 
-## Expanding the ESLint configuration
+This project is deployed using Ansible. The `playbook/deploy-prod.yml` playbook:
+1) Builds the project (pulls from github)
+2) Copies the built files to the server
+3) Enables the NGINX site
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+The audio catalog is managed separately by the [catalog-manager](https://github.com/Ivanipani/catalog-manager) project.
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Runbook
+In this project:
 ```
+cd playbook
+ansible-playbook -K deploy-prod.yml
+``` 
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+In the catalog-manager project:
 ```
+cd playbook
+ansible-playbook -K deploy-prod.yml
+``` 
