@@ -36,6 +36,8 @@ export const fetchAudioCatalog = async (): Promise<AudioCatalog> => {
     });
     return catalog;
   } catch (error) {
-    throw new Error("Failed to fetch audio catalog");
+    console.error(error);
+    return { songs: [] };
+    // throw new Error("Failed to fetch audio catalog");
   }
 };

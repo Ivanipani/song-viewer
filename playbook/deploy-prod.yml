@@ -52,8 +52,9 @@
   vars:
     build_path_src: "/tmp/song-viewer/dist"
     build_path_dest: "/var/www/song-viewer"
-    domain: "canciones.poochella.com"
     audio_path_dest: "/public/songstore"
+    server_port: 80
+    domain: "canciones.poochella.com"
   tasks:
     - name: Create web app directory
       ansible.builtin.file:
