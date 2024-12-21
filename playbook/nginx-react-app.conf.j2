@@ -36,10 +36,25 @@ server {
     }
 
     location / {
-        expires 60s;
-        add_header Cache-Control "public, no-cache, must-revalidate";
-        # Add these headers to handle CORS preflight requests
+        # Set cache headers only for index.html
+        location = /index.html {
+            expires 60s;
+            add_header Cache-Control "public, no-cache, must-revalidate";
+            
+            # Include CORS headers
+            if ($request_method = 'OPTIONS') {
+                add_header 'Access-Control-Allow-Origin' '$http_origin' always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+                add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
+                add_header 'Access-Control-Max-Age' 1728000 always;
+                add_header 'Content-Type' 'text/plain; charset=utf-8' always;
+                add_header 'Content-Length' 0 always;
+                return 204;
+            }
+            try_files $uri =404;
+        }
 
+        # CORS headers for other requests
         if ($request_method = 'OPTIONS') {
             add_header 'Access-Control-Allow-Origin' '$http_origin' always;
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
@@ -49,7 +64,6 @@ server {
             add_header 'Content-Length' 0 always;
             return 204;
         }
-        try_files $uri $uri/ /index.html =404;
+        try_files $uri $uri/ /index.html;
     }
-
 }
