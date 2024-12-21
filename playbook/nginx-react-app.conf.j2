@@ -5,13 +5,6 @@ server {
     root {{ build_path_dest }};
     index index.html;
 
-
-    location = /index.html {
-        expires 60s;
-        add_header Cache-Control "public, no-cache, must-revalidate";
-        try_files $uri $uri/ =404;
-    }
-
     # Audio files location
     location /canciones {
         alias {{ audio_path_dest }}/;
@@ -43,7 +36,10 @@ server {
     }
 
     location / {
+        expires 60s;
+        add_header Cache-Control "public, no-cache, must-revalidate";
         # Add these headers to handle CORS preflight requests
+
         if ($request_method = 'OPTIONS') {
             add_header 'Access-Control-Allow-Origin' '$http_origin' always;
             add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
@@ -53,7 +49,7 @@ server {
             add_header 'Content-Length' 0 always;
             return 204;
         }
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html =404;
     }
 
 }
