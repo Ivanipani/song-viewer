@@ -25,6 +25,7 @@
     repo_url: "https://github.com/Ivanipani/song-viewer.git"
     local_repo_path: "/tmp/song-viewer"
     build_path: "/tmp/song-viewer/dist"
+    audio_path_dest: "/public/songstore"
   tasks:
     - name: Clone/pull repository
       ansible.builtin.git:
