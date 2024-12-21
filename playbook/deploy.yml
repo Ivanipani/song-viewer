@@ -25,7 +25,6 @@
     repo_url: "https://github.com/Ivanipani/song-viewer.git"
     local_repo_path: "/tmp/song-viewer"
     build_path: "/tmp/song-viewer/dist"
-    audio_path_dest: "/public/songstore"
   tasks:
     - name: Clone/pull repository
       ansible.builtin.git:
@@ -53,8 +52,7 @@
     build_path_src: "/tmp/song-viewer/dist"
     build_path_dest: "/var/www/song-viewer"
     domain: "canciones.poochella.com"
-    audio_path_src: "/Users/ivanperdomo/canciones"
-    audio_path_dest: "/public/canciones"
+    audio_path_dest: "/public/songstore"
   tasks:
     - name: Create web app directory
       ansible.builtin.file:
