@@ -15,7 +15,7 @@ server {
         # add_header Access-Control-Allow-Origin *;
         # Replace the existing CORS header with this conditional one
         set $cors_origin "";
-        if ($http_origin ~ "^(http://canciones\.poochella\.com|http://localhost(:[0-9]+)?$)") {
+        if ($http_origin ~ "^(http://canciones\.poochella\.club|http://localhost(:[0-9]+)?$)") {
             set $cors_origin $http_origin;
         }
         
@@ -41,29 +41,9 @@ server {
             expires 60s;
             add_header Cache-Control "public, no-cache, must-revalidate";
             
-            # Include CORS headers
-            if ($request_method = 'OPTIONS') {
-                add_header 'Access-Control-Allow-Origin' '$http_origin' always;
-                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
-                add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
-                add_header 'Access-Control-Max-Age' 1728000 always;
-                add_header 'Content-Type' 'text/plain; charset=utf-8' always;
-                add_header 'Content-Length' 0 always;
-                return 204;
-            }
             try_files $uri =404;
         }
 
-        # CORS headers for other requests
-        if ($request_method = 'OPTIONS') {
-            add_header 'Access-Control-Allow-Origin' '$http_origin' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
-            add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
-            add_header 'Access-Control-Max-Age' 1728000 always;
-            add_header 'Content-Type' 'text/plain; charset=utf-8' always;
-            add_header 'Content-Length' 0 always;
-            return 204;
-        }
         try_files $uri $uri/ /index.html;
     }
 }
