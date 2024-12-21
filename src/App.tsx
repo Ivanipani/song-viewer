@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { CssBaseline, Container, Box, Typography, Button } from "@mui/material";
 import { Howl } from "howler";
-import { fetchSongs, AudioFileRecord } from "./api/canciones";
+import {
+  fetchAudioCatalog,
+  AudioCatalog,
+  AudioFileRecord,
+} from "./api/canciones";
 // function ColorAutocomplete({ onSubmit }) {
 // const colors = ["red", "green", "blue"];
 //   const [value, setValue] = useState(null);
@@ -47,30 +51,31 @@ interface TrackProps {
   audio: AudioFileRecord;
 }
 
-const Track = ({ audio }: TrackProps) => {
+const Track = (props: TrackProps) => {
+  const [loaded, setLoaded] = useState(false);
   const [sound, setSound] = useState<Howl | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   useEffect(() => {
     const s = new Howl({
-      src: [audio.url],
+      src: [props.audio.url],
+      html5: true,
       autoplay: false,
-      // preload: false,
+      preload: false,
     });
     setSound(s);
-  }, [audio.url]);
+  }, [props.audio.url]);
 
   const handleClick = () => {
     if (!sound) return;
+    if (!loaded) {
+      sound.load();
+      setLoaded(true);
+    }
     if (sound.playing()) {
       sound.pause();
     } else {
       sound.play();
     }
-    // if (isPlaying) {
-    //   sound.stop();
-    // } else {
-    //   sound.play();
-    // }
     setIsPlaying(!isPlaying);
   };
 
@@ -88,7 +93,7 @@ const Track = ({ audio }: TrackProps) => {
       >
         {isPlaying ? "■ Stop" : "▶ Play"}
       </Button>
-      <Typography variant="h5">{audio.name}</Typography>
+      <Typography variant="h5">{props.audio.title}</Typography>
     </Box>
   );
 };
@@ -103,13 +108,13 @@ const Track = ({ audio }: TrackProps) => {
 // }
 
 function App() {
-  const [songs, setSongs] = useState<AudioFileRecord[]>([]);
+  const [catalog, setCatalog] = useState<AudioCatalog | null>(null);
 
   useEffect(() => {
-    fetchSongs().then((s) => setSongs(s));
+    fetchAudioCatalog().then((c) => setCatalog(c));
   }, []);
 
-  console.log(songs);
+  console.log(catalog);
 
   return (
     <Box>
@@ -126,9 +131,12 @@ function App() {
             alignItems: "flex-start",
           }}
         >
-          {songs.map((audio: AudioFileRecord) => {
-            if (audio.name.endsWith(".mp3") || audio.name.endsWith(".wav")) {
-              return <Track audio={audio} />;
+          {catalog?.songs.map((audio: AudioFileRecord) => {
+            if (
+              audio.filename.endsWith(".mp3") ||
+              audio.filename.endsWith(".wav")
+            ) {
+              return <Track key={audio.id} audio={audio} />;
             } else {
               return null;
             }

@@ -48,6 +48,7 @@
 
 - name: Deploy to web server
   hosts: poochella
+  become: true
   vars:
     build_path_src: "/tmp/song-viewer/dist"
     build_path_dest: "/var/www/song-viewer"
@@ -61,28 +62,24 @@
         mode: '0755'
         owner: www-data
         group: www-data
-      become: true
 
     - name: Copy built files to server
       ansible.builtin.copy:
         src: "{{ build_path_src }}/"
         dest: "{{ build_path_dest }}"
         mode: '0644'
-      become: true
 
     - name: Configure NGINX site
       ansible.builtin.template:
         src: nginx-react-app.conf.j2
         dest: /etc/nginx/sites-available/song-viewer
         mode: '0644'
-      become: true
       notify: Restart NGINX
     - name: Enable NGINX site
       ansible.builtin.file:
         src: /etc/nginx/sites-available/song-viewer
         dest: /etc/nginx/sites-enabled/song-viewer
         state: link
-      become: true
       notify: Restart NGINX
   handlers:
     - name: Restart NGINX
