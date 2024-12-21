@@ -132,14 +132,7 @@ function App() {
           }}
         >
           {catalog?.songs.map((audio: AudioFileRecord) => {
-            if (
-              audio.filename.endsWith(".mp3") ||
-              audio.filename.endsWith(".wav")
-            ) {
-              return <Track key={audio.id} audio={audio} />;
-            } else {
-              return null;
-            }
+            return <Track key={audio.id} audio={audio} />;
           })}
         </Box>
       </Container>

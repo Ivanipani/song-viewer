@@ -39,11 +39,3 @@ export const fetchAudioCatalog = async (): Promise<AudioCatalog> => {
     throw new Error("Failed to fetch audio catalog");
   }
 };
-
-export const fetchAudioFile = async (filename: string): Promise<Response> => {
-  try {
-    return fetch(`${API_URL}/canciones/canciones/${filename}`);
-  } catch (error) {
-    throw new Error("Failed to fetch audio file");
-  }
-};
