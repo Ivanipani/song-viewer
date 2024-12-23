@@ -1,18 +1,6 @@
 import yaml from "js-yaml";
+import { AudioFileRecord } from "./types";
 const API_URL = import.meta.env.VITE_API_ENDPOINT;
-
-export interface AudioFileRecord {
-  id: string;
-  title: string;
-  artist: string;
-  filename: string;
-  checksum: string;
-  tags: string[];
-  added_date: string;
-  metadata: Record<string, any>;
-  url: string;
-  index: number;
-}
 
 export interface AudioCatalog {
   songs: AudioFileRecord[];
