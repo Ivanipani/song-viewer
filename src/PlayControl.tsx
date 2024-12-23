@@ -43,17 +43,8 @@ export const PlayControl = (props: PlayControlProps) => {
     }
   }, [props.audioState?.isPlaying, props.audioState?.sound]);
 
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "flex-end",
-      }}
-    >
+  const progressBar = () => {
+    return (
       <Box
         sx={{
           width: "100%",
@@ -87,6 +78,10 @@ export const PlayControl = (props: PlayControlProps) => {
           {formatTime(props.audioState?.duration ?? 0)}
         </Typography>
       </Box>
+    );
+  };
+  const controls = () => {
+    return (
       <Box>
         <Button>Shuffle</Button>
         <Button onClick={props.playPrev}>Prev</Button>
@@ -108,6 +103,35 @@ export const PlayControl = (props: PlayControlProps) => {
         <Button onClick={props.playNext}>Next</Button>
         <Button>Loop</Button>
       </Box>
+    );
+  };
+  const nowPlaying = () => {
+    return (
+      <Box sx={{ alignSelf: "flex-start" }}>
+        <Typography variant="h6">
+          {props.audioState?.selectedTrack?.title}
+        </Typography>
+        <Typography variant="subtitle2">
+          {props.audioState?.selectedTrack?.artist}
+        </Typography>
+      </Box>
+    );
+  };
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        // height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "flex-end",
+        flex: 1,
+      }}
+    >
+      {nowPlaying()}
+      {progressBar()}
+      {controls()}
     </Box>
   );
 };
