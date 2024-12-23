@@ -8,8 +8,8 @@ server {
     # Audio files location
     location /canciones {
         alias {{ audio_path_dest }}/;
-        autoindex on;  # Optional: enables directory listing
-        autoindex_format json;
+        #autoindex on;  # Optional: enables directory listing
+        #autoindex_format json;
         try_files $uri $uri/ =404;
         
         # add_header Access-Control-Allow-Origin *;
@@ -33,6 +33,10 @@ server {
             audio/aac  aac;
             audio/flac flac;
         }
+
+        # Set cache control for audio files with revalidation
+        expires 1h;
+        add_header Cache-Control "public, must-revalidate";
     }
 
     location / {
