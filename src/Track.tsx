@@ -2,7 +2,7 @@ import { Box, Typography } from "@mui/material";
 import { AudioFileRecord } from "./api/types";
 
 interface TrackProps {
-  audio: AudioFileRecord;
+  track: AudioFileRecord;
   selectedTrack: AudioFileRecord | null;
   setSelectedTrack: (audio: AudioFileRecord) => any;
 }
@@ -17,7 +17,7 @@ export const Track = (props: TrackProps) => {
         border: "1px solid rgba(0, 0, 0, 0.1)",
         width: "100%",
         backgroundColor:
-          props?.selectedTrack?.id === props.audio.id
+          props?.selectedTrack?.id === props.track.id
             ? "rgba(25, 118, 210, 0.08)"
             : "transparent",
         transition: "all 0.2s ease-in-out",
@@ -30,11 +30,10 @@ export const Track = (props: TrackProps) => {
         },
       }}
       onDoubleClick={() => {
-        console.log("onDoubleClick", props.audio);
-        props.setSelectedTrack(props.audio);
+        props.setSelectedTrack(props.track);
       }}
     >
-      <Typography variant="h4">{props.audio.title}</Typography>
+      <Typography variant="h4">{props.track.title}</Typography>
     </Box>
   );
 };

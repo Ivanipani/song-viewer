@@ -72,7 +72,24 @@ export const PlayControl = (props: PlayControlProps) => {
             if (!props.audioState.sound) return;
             props.audioState.sound.seek(value as number);
           }}
-          sx={{ width: "90%", height: "10px" }}
+          sx={{
+            width: "90%",
+            height: "5px",
+            color: "white",
+            marginInline: "10px",
+            "& .MuiSlider-thumb": {
+              display: "none",
+              height: "10px",
+              width: "10px",
+              boxShadow: "none",
+            },
+            "&:hover": {
+              opacity: 0.8,
+            },
+            "&:hover .MuiSlider-thumb": {
+              display: "block",
+            },
+          }}
         />
         <Typography variant="subtitle2">
           {formatTime(props.audioState?.duration ?? 0)}
@@ -121,7 +138,6 @@ export const PlayControl = (props: PlayControlProps) => {
     <Box
       sx={{
         width: "100%",
-        // height: "100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

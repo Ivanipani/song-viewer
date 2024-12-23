@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Howl } from "howler";
 import { fetchAudioCatalog, AudioCatalog } from "./api/canciones";
 import { AudioState, AudioFileRecord } from "./api/types";
@@ -64,7 +64,7 @@ export const Player = () => {
     shuffle: false,
   });
   // Update the track selection logic
-  const handleTrackSelect = useCallback((track: AudioFileRecord) => {
+  const handleTrackSelect = (track: AudioFileRecord) => {
     // if (track.id === audioState.selectedTrack?.id) return;
     setAudioState((prev) => {
       // Clean up previous sound
@@ -85,7 +85,7 @@ export const Player = () => {
         duration: newSound.duration(),
       };
     });
-  }, []);
+  };
 
   const playNext = () => {
     const currentIndex = audioState.selectedTrack?.index || 0;
@@ -131,9 +131,10 @@ export const Player = () => {
         audioState.sound.stop();
         audioState.sound.unload();
       }
+      stopPositionTracking();
     };
   }, []);
-  console.log("audioState", audioState);
+
   // Add keyboard event listener
   // useEffect(() => {
   //   const handleKeyPress = (event: KeyboardEvent) => {
@@ -193,13 +194,6 @@ export const Player = () => {
     }
   };
 
-  // Clean up interval on unmount
-  useEffect(() => {
-    return () => {
-      audioState.sound?.stop();
-      stopPositionTracking();
-    };
-  }, []);
   const trackViewer = () => {
     return (
       <Box
@@ -227,10 +221,10 @@ export const Player = () => {
               overflowY: "auto",
             }}
           >
-            {catalog?.songs.map((audio: AudioFileRecord) => (
+            {catalog?.songs.map((track: AudioFileRecord) => (
               <Track
-                key={audio.id}
-                audio={audio}
+                key={track.id}
+                track={track}
                 selectedTrack={audioState.selectedTrack}
                 setSelectedTrack={handleTrackSelect}
               />
