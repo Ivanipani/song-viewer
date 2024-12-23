@@ -27,6 +27,8 @@ interface AudioState {
 interface PlayControlProps {
   audioState: AudioState;
   setAudioState: any;
+  playNext: () => void;
+  playPrev: () => void;
 }
 const PlayControl = (props: PlayControlProps) => {
   const togglePlay = () => {
@@ -87,7 +89,7 @@ const PlayControl = (props: PlayControlProps) => {
       </Box>
       <Box>
         <Button>Shuffle</Button>
-        <Button>Prev</Button>
+        <Button onClick={props.playPrev}>Prev</Button>
 
         <Button
           onClick={togglePlay}
@@ -103,7 +105,7 @@ const PlayControl = (props: PlayControlProps) => {
         >
           {props.audioState?.isPlaying ? "■ Stop" : "▶ Play"}
         </Button>
-        <Button>Next</Button>
+        <Button onClick={props.playNext}>Next</Button>
         <Button>Loop</Button>
       </Box>
     </Box>
@@ -235,6 +237,13 @@ function App() {
     const nextSong = catalog?.songs[nextIndex];
     if (!nextSong) return;
     handleTrackSelect(nextSong);
+  };
+  const playPrev = () => {
+    const currentIndex = audioState.selectedTrack?.index || 0;
+    const prevIndex = currentIndex - 1;
+    const prevSong = catalog?.songs[prevIndex];
+    if (!prevSong) return;
+    handleTrackSelect(prevSong);
   };
 
   // Load the catalog, select the first song
@@ -374,6 +383,8 @@ function App() {
             <PlayControl
               audioState={audioState}
               setAudioState={setAudioState}
+              playNext={playNext}
+              playPrev={playPrev}
             />
           </Box>
         </Box>
