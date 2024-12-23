@@ -11,6 +11,7 @@ export interface AudioFileRecord {
   added_date: string;
   metadata: Record<string, any>;
   url: string;
+  index: number;
 }
 
 export interface AudioCatalog {
@@ -31,8 +32,9 @@ export const fetchAudioCatalog = async (): Promise<AudioCatalog> => {
     const response = await fetch(`${API_URL}/canciones/catalog.yml`);
     const data = await response.text();
     const catalog = yaml.load(data) as AudioCatalog;
-    catalog.songs.forEach((song) => {
+    catalog.songs.forEach((song, idx) => {
       song.url = `${API_URL}/canciones/${song.filename}`;
+      song.index = idx;
     });
     return catalog;
   } catch (error) {

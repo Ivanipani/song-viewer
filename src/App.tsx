@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, memo, useRef } from "react";
 import {
   CssBaseline,
   Container,
@@ -14,75 +14,47 @@ import {
   AudioCatalog,
   AudioFileRecord,
 } from "./api/canciones";
-// function ColorAutocomplete({ onSubmit }) {
-// const colors = ["red", "green", "blue"];
-//   const [value, setValue] = useState(null);
-//   const [inputValue, setInputValue] = useState("");
 
-//   const filterOptions = (options, { inputValue }) => {
-//     if (inputValue === "") {
-//       return [];
-//     }
-//     return options.filter((option) =>
-//       option.toLowerCase().includes(inputValue.toLowerCase())
-//     );
-//   };
-
-//   const handleKeyDown = (event) => {
-//     if (event.key === "Enter" && value) {
-//       onSubmit(value);
-//       setValue(null);
-//       setInputValue("");
-//     }
-//   };
-
-//   return (
-//     <Autocomplete
-//       value={value}
-//       onChange={(event, newValue) => setValue(newValue)}
-//       inputValue={inputValue}
-//       onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
-//       options={colors}
-//       filterOptions={filterOptions}
-//       renderInput={(params) => (
-//         <TextField
-//           {...params}
-//           label="Select a color"
-//           onKeyDown={handleKeyDown}
-//         />
-//       )}
-//     />
-//   );
-// }
-
-interface PlayControlProps {
-  selectedSong: AudioFileRecord | null;
-  sound: Howl | null;
-  loaded: boolean;
-  setLoaded: any;
+interface AudioState {
   isPlaying: boolean;
-  setIsPlaying: any;
+  selectedTrack: AudioFileRecord | null;
+  sound: Howl | null;
+  position: number;
+  duration: number;
+  loop: "single" | "all" | "none";
+  shuffle: boolean;
+}
+interface PlayControlProps {
+  audioState: AudioState;
+  setAudioState: any;
 }
 const PlayControl = (props: PlayControlProps) => {
   const togglePlay = () => {
-    if (!props.sound) return;
-    if (!props.loaded) {
-      props.sound.load();
-      props.setLoaded(true);
-    }
-    if (props.sound.playing()) {
-      props.sound.pause();
-    } else {
-      props.sound.play();
-    }
-    props.setIsPlaying(!props.isPlaying);
+    props.setAudioState((prev: AudioState) => ({
+      ...prev,
+      isPlaying: !prev.isPlaying,
+    }));
   };
   useEffect(() => {
-    if (props.isPlaying && props.sound) {
-      props.sound.load();
-      props.sound.play();
+    const { sound, isPlaying } = props.audioState;
+    if (!sound) return;
+
+    console.log(
+      "isPlaying",
+      isPlaying,
+      "sound.playing()",
+      sound.playing(),
+      "sound.state()",
+      sound.state()
+    );
+    const isCurrentlyPlaying = sound.playing();
+    if (isPlaying && !isCurrentlyPlaying) {
+      sound.play();
+    } else if (!isPlaying && isCurrentlyPlaying) {
+      sound.pause();
     }
-  }, [props.sound]);
+  }, [props.audioState?.isPlaying, props.audioState?.sound]);
+
   return (
     <Box
       sx={{
@@ -94,8 +66,24 @@ const PlayControl = (props: PlayControlProps) => {
         justifyContent: "flex-end",
       }}
     >
-      <Box>
-        <Slider></Slider>
+      <Box sx={{ width: "100%" }}>
+        <Slider
+          min={0}
+          max={props.audioState?.duration ?? 100}
+          step={1}
+          value={props.audioState?.position ?? 0}
+          valueLabelDisplay="auto"
+          onChange={(e, value) => {
+            console.log(e, value);
+            if (!props.audioState.sound) return;
+            props.setAudioState((prev: AudioState) => ({
+              ...prev,
+              position: value,
+            }));
+            props.audioState.sound.seek(value);
+          }}
+          sx={{ width: "90%", height: "10px" }}
+        />
       </Box>
       <Box>
         <Button>Shuffle</Button>
@@ -104,14 +92,16 @@ const PlayControl = (props: PlayControlProps) => {
         <Button
           onClick={togglePlay}
           sx={{
-            backgroundColor: props.isPlaying ? "#ff4444" : "#4444ff",
+            backgroundColor: props.audioState?.isPlaying
+              ? "#ff4444"
+              : "#4444ff",
             color: "white",
             padding: "8px 16px",
             border: "none",
             borderRadius: "4px",
           }}
         >
-          {props.isPlaying ? "■ Stop" : "▶ Play"}
+          {props.audioState?.isPlaying ? "■ Stop" : "▶ Play"}
         </Button>
         <Button>Next</Button>
         <Button>Loop</Button>
@@ -131,14 +121,24 @@ const Track = (props: TrackProps) => {
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        border: "1px solid",
+        border: "1px solid rgba(0, 0, 0, 0.1)",
         width: "100%",
         backgroundColor:
-          props?.selectedTrack.id === props.audio.id ? "red" : null,
+          props?.selectedTrack?.id === props.audio.id
+            ? "rgba(25, 118, 210, 0.08)"
+            : "transparent",
+        transition: "all 0.2s ease-in-out",
+        cursor: "pointer",
+        "&:hover": {
+          backgroundColor: "rgba(25, 118, 210, 0.04)",
+        },
+        "&:active": {
+          transform: "scale(0.995)",
+        },
       }}
-      onClick={() => {
+      onDoubleClick={() => {
+        console.log("onDoubleClick", props.audio);
         props.setSelectedTrack(props.audio);
-        console.log(props.audio);
       }}
     >
       <Typography variant="h4">{props.audio.title}</Typography>
@@ -146,32 +146,115 @@ const Track = (props: TrackProps) => {
   );
 };
 
-// interface Song {
-//   id: number;
-//   name: string;
-//   duration: number;
-//   url: string;
-//   created_at: string;
-//   updated_at: string;
-// }
-
 function App() {
+  const createSound = (url: string) => {
+    const sound = new Howl({
+      src: [url],
+      autoplay: false,
+      preload: true,
+      onseek: (seek) => {
+        console.log("seek", seek);
+      },
+      onend: () => {
+        console.log("end");
+      },
+      onload: () => {
+        setAudioState((prev) => ({
+          ...prev,
+          duration: sound.duration(),
+        }));
+        console.log("onload");
+      },
+      onloaderror: (id, error) => {
+        console.log("onloaderror", id, error);
+      },
+      onplayerror: (id, error) => {
+        console.log("onplayerror", id, error);
+      },
+      onplay: () => {
+        console.log("onplay");
+        // startPositionTracking();
+      },
+      onstop: () => {
+        console.log("onstop");
+        // stopPositionTracking();
+      },
+      onpause: () => {
+        console.log("onpause");
+        // stopPositionTracking();
+      },
+    });
+    console.log("created sound", sound);
+    return sound;
+  };
+
   const [catalog, setCatalog] = useState<AudioCatalog | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [loaded, setLoaded] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState<AudioFileRecord | null>(
-    null
-  );
-  const [sound, setSound] = useState<Howl | null>(null);
 
+  // Consolidate audio-related state
+  const [audioState, setAudioState] = useState<AudioState>({
+    isPlaying: false,
+    selectedTrack: null,
+    sound: null,
+    position: 0,
+    duration: 0,
+    loop: "none",
+    shuffle: false,
+  });
+  console.log("audioState", audioState);
+  // Update the track selection logic
+  const handleTrackSelect = useCallback((track: AudioFileRecord) => {
+    // if (track.id === audioState.selectedTrack?.id) return;
+    console.log("track", track);
+    console.log("audioState.selectedTrack", audioState.selectedTrack);
+    setAudioState((prev) => {
+      // Clean up previous sound
+      if (prev.sound) {
+        prev.sound.stop();
+        prev.sound.unload();
+      }
+
+      // Create new sound instance
+      const newSound = createSound(track.url);
+
+      return {
+        ...prev,
+        selectedTrack: track,
+        sound: newSound,
+        isPlaying: true,
+        position: 0,
+        duration: newSound.duration(),
+      };
+    });
+  }, []);
+
+  const playNext = () => {
+    const currentIndex = audioState.selectedTrack?.index || 0;
+    const nextIndex = currentIndex + 1;
+    const nextSong = catalog?.songs[nextIndex];
+    if (!nextSong) return;
+    handleTrackSelect(nextSong);
+  };
+
+  // Load the catalog, select the first song
   useEffect(() => {
     setLoading(true);
     fetchAudioCatalog()
       .then((c) => {
         setCatalog(c);
-        setSelectedTrack(c.songs[0]);
+        setAudioState((prev) => {
+          const newSound = createSound(c.songs[0].url);
+          return {
+            ...prev,
+            selectedTrack: c.songs[0],
+            sound: newSound,
+            position: 0,
+            duration: newSound.duration(),
+            loop: "none",
+            shuffle: false,
+          };
+        });
         setLoading(false);
       })
       .catch((e) => {
@@ -180,23 +263,63 @@ function App() {
       });
   }, []);
 
-  useEffect(() => {
-    if (selectedTrack) {
-      if (sound) {
-        // Already playing something
-        sound.stop();
-      }
-      const s = new Howl({
-        src: [selectedTrack.url],
-        html5: true,
-        autoplay: false,
-        preload: false,
-      });
-      setSound(s);
-    }
-  }, [selectedTrack]);
-
   console.log(catalog);
+
+  // Add keyboard event listener
+  // useEffect(() => {
+  //   const handleKeyPress = (event: KeyboardEvent) => {
+  //     if (event.code === "Space") {
+  //       event.preventDefault(); // Prevent space from scrolling the page
+  //       setAudioState((prev) => {
+  //         if (!prev.sound) return prev;
+  //         if (prev.isPlaying) {
+  //           prev.sound.pause();
+  //         } else {
+  //           prev.sound.play();
+  //         }
+  //         return { ...prev, isPlaying: !prev.isPlaying };
+  //       });
+  //     }
+  //   };
+
+  //   window.addEventListener("keydown", handleKeyPress);
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeyPress);
+  //   };
+  // }, [audioState.isPlaying]);
+
+  // Add ref to store interval ID
+  const positionInterval = useRef<number | null>(null);
+
+  // Add position tracking functions
+  const startPositionTracking = useCallback(() => {
+    if (positionInterval.current) return;
+
+    positionInterval.current = window.setInterval(() => {
+      if (audioState.sound) {
+        setAudioState((prev) => ({
+          ...prev,
+          position: prev.sound?.seek() || 0,
+        }));
+      }
+    }, 500);
+  }, [audioState.sound]);
+
+  const stopPositionTracking = useCallback(() => {
+    if (positionInterval.current) {
+      window.clearInterval(positionInterval.current);
+      positionInterval.current = null;
+    }
+  }, []);
+
+  // Clean up interval on unmount
+  // useEffect(() => {
+  //   return () => {
+  //     audioState.sound?.stop();
+  //     audioState.sound?.unload();
+  //     stopPositionTracking();
+  //   };
+  // }, [stopPositionTracking]);
 
   return (
     <Box
@@ -212,10 +335,8 @@ function App() {
           display: "flex",
           flexDirection: "row",
           minHeight: "100vh",
-          // marginBlock: 1,
         }}
       >
-        {/* <Box sx={{ display: "flex", flexDirection: "row" }}> */}
         <Box
           sx={{
             display: "flex",
@@ -239,26 +360,20 @@ function App() {
                 overflowY: "auto",
               }}
             >
-              {catalog?.songs.map((audio: AudioFileRecord) => {
-                return (
-                  <Track
-                    key={audio.id}
-                    audio={audio}
-                    selectedTrack={selectedTrack}
-                    setSelectedTrack={setSelectedTrack}
-                  />
-                );
-              })}
+              {catalog?.songs.map((audio: AudioFileRecord) => (
+                <Track
+                  key={audio.id}
+                  audio={audio}
+                  selectedTrack={audioState.selectedTrack}
+                  setSelectedTrack={handleTrackSelect}
+                />
+              ))}
             </Box>
           )}
           <Box sx={{ flex: 0, height: "15%" }}>
             <PlayControl
-              selectedSong={selectedTrack}
-              sound={sound}
-              loaded={loaded}
-              setLoaded={setLoaded}
-              isPlaying={isPlaying}
-              setIsPlaying={setIsPlaying}
+              audioState={audioState}
+              setAudioState={setAudioState}
             />
           </Box>
         </Box>
@@ -267,7 +382,6 @@ function App() {
             sx={{ height: "100%", width: "100%", backgroundColor: "blue" }}
           ></Box>
         </Box>
-        {/* </Box> */}
       </Container>
     </Box>
   );
