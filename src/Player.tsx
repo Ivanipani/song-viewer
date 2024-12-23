@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, memo, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Howl } from "howler";
 import { fetchAudioCatalog, AudioCatalog } from "./api/canciones";
 import { AudioState, AudioFileRecord } from "./api/types";
@@ -51,7 +51,7 @@ export const Player = () => {
 
   const [catalog, setCatalog] = useState<AudioCatalog | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
+  const [_, setError] = useState<boolean>(false);
 
   // Consolidate audio-related state
   const [audioState, setAudioState] = useState<AudioState>({

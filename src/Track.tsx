@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { AudioFileRecord } from "./api/canciones";
+import { AudioFileRecord } from "./api/types";
 
 interface TrackProps {
   audio: AudioFileRecord;
