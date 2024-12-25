@@ -53,6 +53,7 @@
     build_path_src: "/tmp/song-viewer/dist"
     build_path_dest: "/var/www/song-viewer"
     audio_path_dest: "/public/songstore"
+    photos_path_dest: "/public/fotos"
     server_port: 80
     domain: "canciones.poochella.com"
   tasks:
