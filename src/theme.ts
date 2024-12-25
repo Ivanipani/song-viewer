@@ -7,7 +7,7 @@ export const darkTheme = createTheme({
       main: "#000000", // black
     },
     background: {
-      default: "#524f49", // dark grey for main background
+      default: "#4b4c4d", // dark grey for main background
       paper: "#8c8b87", // slightly lighter grey for components
     },
     text: {

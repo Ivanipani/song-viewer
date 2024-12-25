@@ -49,14 +49,6 @@ export const PlayControl = (props: PlayControlProps) => {
     const { sound, isPlaying } = props.audioState;
     if (!sound) return;
 
-    console.log(
-      "isPlaying",
-      isPlaying,
-      "sound.playing()",
-      sound.playing(),
-      "sound.state()",
-      sound.state()
-    );
     const isCurrentlyPlaying = sound.playing();
     if (isPlaying && !isCurrentlyPlaying) {
       sound.play();
@@ -64,6 +56,24 @@ export const PlayControl = (props: PlayControlProps) => {
       sound.pause();
     }
   }, [props.audioState?.isPlaying, props.audioState?.sound]);
+
+  // Add keyboard event listener
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        event.preventDefault(); // Prevent space from scrolling the page
+        props.setAudioState((prev: AudioState) => {
+          if (!prev.sound) return prev;
+          return { ...prev, isPlaying: !prev.isPlaying };
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
 
   const progressBar = () => {
     return (
@@ -125,14 +135,23 @@ export const PlayControl = (props: PlayControlProps) => {
       shuffle: !prev.shuffle,
     }));
   };
+  const getLoopIcon = () => {
+    if (props.audioState.loop === "single") {
+      return <LoopIcon />;
+    } else if (props.audioState.loop === "all") {
+      return <RepeatOneIcon />;
+    } else {
+      return <DoNotDisturbIcon />;
+    }
+  };
   const controls = () => {
     return (
       <Box>
-        <IconButton onClick={toggleShuffle}>
+        {/* <IconButton onClick={toggleShuffle}>
           <ShuffleIcon
             sx={{ color: props.audioState?.shuffle ? "green" : "white" }}
           />
-        </IconButton>
+        </IconButton> */}
         <IconButton onClick={props.playPrev}>
           <SkipPreviousIcon />
         </IconButton>
@@ -140,9 +159,6 @@ export const PlayControl = (props: PlayControlProps) => {
         <IconButton
           onClick={togglePlay}
           sx={{
-            backgroundColor: props.audioState?.isPlaying
-              ? "#ff4444"
-              : "#4444ff",
             color: "white",
             padding: "8px 16px",
             border: "none",
@@ -154,7 +170,7 @@ export const PlayControl = (props: PlayControlProps) => {
         <IconButton onClick={props.playNext}>
           <SkipNextIcon />
         </IconButton>
-        <IconButton onClick={toggleLoopState}>{getLoopIcon()}</IconButton>
+        {/* <IconButton onClick={toggleLoopState}>{getLoopIcon()}</IconButton> */}
       </Box>
     );
   };
@@ -170,15 +186,7 @@ export const PlayControl = (props: PlayControlProps) => {
       </Box>
     );
   };
-  const getLoopIcon = () => {
-    if (props.audioState.loop === "single") {
-      return <LoopIcon />;
-    } else if (props.audioState.loop === "all") {
-      return <RepeatOneIcon />;
-    } else {
-      return <DoNotDisturbIcon />;
-    }
-  };
+
   return (
     <Box
       sx={{

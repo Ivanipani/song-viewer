@@ -137,29 +137,6 @@ export const Player = () => {
     };
   }, []);
 
-  // Add keyboard event listener
-  // useEffect(() => {
-  //   const handleKeyPress = (event: KeyboardEvent) => {
-  //     if (event.code === "Space") {
-  //       event.preventDefault(); // Prevent space from scrolling the page
-  //       setAudioState((prev) => {
-  //         if (!prev.sound) return prev;
-  //         if (prev.isPlaying) {
-  //           prev.sound.pause();
-  //         } else {
-  //           prev.sound.play();
-  //         }
-  //         return { ...prev, isPlaying: !prev.isPlaying };
-  //       });
-  //     }
-  //   };
-
-  //   window.addEventListener("keydown", handleKeyPress);
-  //   return () => {
-  //     window.removeEventListener("keydown", handleKeyPress);
-  //   };
-  // }, [audioState.isPlaying]);
-
   useEffect(() => {
     if (audioState.sound && audioState.isPlaying) {
       startPositionTracking();
@@ -174,12 +151,9 @@ export const Player = () => {
   // Add position tracking functions
 
   const startPositionTracking = () => {
-    console.log("startPositionTracking");
     if (positionInterval.current) return;
-    console.log("positionInterval.current", positionInterval.current);
 
     positionInterval.current = window.setInterval(() => {
-      console.log("audioState.sound", audioState.sound);
       if (audioState.sound) {
         setAudioState((prev) => ({
           ...prev,

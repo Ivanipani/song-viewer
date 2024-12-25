@@ -29,7 +29,7 @@ export const Track = (props: TrackProps) => {
           transform: "scale(0.995)",
         },
       }}
-      onDoubleClick={() => {
+      onClick={() => {
         props.setSelectedTrack(props.track);
       }}
     >
