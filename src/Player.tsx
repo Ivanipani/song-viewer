@@ -5,8 +5,10 @@ import { AudioState, AudioFileRecord } from "./api/types";
 import { PlayControl } from "./PlayControl";
 import { Track } from "./Track";
 import { Box, Container, CircularProgress } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 
 export const Player = () => {
+  const isMobile = useMediaQuery("(max-width: 600px)");
   const createSound = (url: string) => {
     const sound = new Howl({
       src: [url],
@@ -201,7 +203,6 @@ export const Player = () => {
           display: "flex",
           flexDirection: "column",
           flex: 1,
-          maxWidth: "30vw",
           justifyContent: "space-between",
           padding: 2,
           border: "1px solid blue",
@@ -260,7 +261,7 @@ export const Player = () => {
       }}
     >
       {trackViewer()}
-      {photoViewer()}
+      {!isMobile && photoViewer()}
     </Container>
   );
 };

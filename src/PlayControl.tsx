@@ -1,6 +1,14 @@
-import { Box, Button, Slider, Typography } from "@mui/material";
+import { Box, Button, Slider, Typography, IconButton } from "@mui/material";
 import { useEffect } from "react";
 import { AudioState } from "./api/types";
+import ShuffleIcon from "@mui/icons-material/Shuffle";
+import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
+import SkipNextIcon from "@mui/icons-material/SkipNext";
+import LoopIcon from "@mui/icons-material/Loop";
+import RepeatOneIcon from "@mui/icons-material/RepeatOne";
+import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
 
 interface PlayControlProps {
   audioState: AudioState;
@@ -13,6 +21,20 @@ export const PlayControl = (props: PlayControlProps) => {
     props.setAudioState((prev: AudioState) => ({
       ...prev,
       isPlaying: !prev.isPlaying,
+    }));
+  };
+  const toggleLoopState = () => {
+    let newLoopState: "single" | "all" | "none" = "none";
+    if (props.audioState.loop === "single") {
+      newLoopState = "all";
+    } else if (props.audioState.loop === "all") {
+      newLoopState = "none";
+    } else {
+      newLoopState = "single";
+    }
+    props.setAudioState((prev: AudioState) => ({
+      ...prev,
+      loop: newLoopState,
     }));
   };
 
@@ -81,13 +103,13 @@ export const PlayControl = (props: PlayControlProps) => {
               display: "none",
               height: "10px",
               width: "10px",
-              boxShadow: "none",
             },
             "&:hover": {
               opacity: 0.8,
             },
             "&:hover .MuiSlider-thumb": {
               display: "block",
+              boxShadow: "none",
             },
           }}
         />
@@ -97,13 +119,25 @@ export const PlayControl = (props: PlayControlProps) => {
       </Box>
     );
   };
+  const toggleShuffle = () => {
+    props.setAudioState((prev: AudioState) => ({
+      ...prev,
+      shuffle: !prev.shuffle,
+    }));
+  };
   const controls = () => {
     return (
       <Box>
-        <Button>Shuffle</Button>
-        <Button onClick={props.playPrev}>Prev</Button>
+        <IconButton onClick={toggleShuffle}>
+          <ShuffleIcon
+            sx={{ color: props.audioState?.shuffle ? "green" : "white" }}
+          />
+        </IconButton>
+        <IconButton onClick={props.playPrev}>
+          <SkipPreviousIcon />
+        </IconButton>
 
-        <Button
+        <IconButton
           onClick={togglePlay}
           sx={{
             backgroundColor: props.audioState?.isPlaying
@@ -115,10 +149,12 @@ export const PlayControl = (props: PlayControlProps) => {
             borderRadius: "4px",
           }}
         >
-          {props.audioState?.isPlaying ? "■ Stop" : "▶ Play"}
-        </Button>
-        <Button onClick={props.playNext}>Next</Button>
-        <Button>Loop</Button>
+          {props.audioState?.isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+        </IconButton>
+        <IconButton onClick={props.playNext}>
+          <SkipNextIcon />
+        </IconButton>
+        <IconButton onClick={toggleLoopState}>{getLoopIcon()}</IconButton>
       </Box>
     );
   };
@@ -133,6 +169,15 @@ export const PlayControl = (props: PlayControlProps) => {
         </Typography>
       </Box>
     );
+  };
+  const getLoopIcon = () => {
+    if (props.audioState.loop === "single") {
+      return <LoopIcon />;
+    } else if (props.audioState.loop === "all") {
+      return <RepeatOneIcon />;
+    } else {
+      return <DoNotDisturbIcon />;
+    }
   };
   return (
     <Box
