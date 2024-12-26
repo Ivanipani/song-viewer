@@ -1,7 +1,6 @@
 import yaml from "js-yaml";
 import { AudioFileRecord } from "./types";
-const API_URL = import.meta.env.VITE_API_ENDPOINT;
-
+import { CANCIONES_API_URL } from "./constants";
 export interface AudioCatalog {
   songs: AudioFileRecord[];
 }
@@ -17,11 +16,11 @@ export interface AudioCatalog {
  */
 export const fetchAudioCatalog = async (): Promise<AudioCatalog> => {
   try {
-    const response = await fetch(`${API_URL}/canciones/catalog.yml`);
+    const response = await fetch(`${CANCIONES_API_URL}/catalog.yml`);
     const data = await response.text();
     const catalog = yaml.load(data) as AudioCatalog;
     catalog.songs.forEach((song, idx) => {
-      song.url = `${API_URL}/canciones/${song.filename}`;
+      song.url = `${CANCIONES_API_URL}/${song.filename}`;
       song.index = idx;
     });
     return catalog;

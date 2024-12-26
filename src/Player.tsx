@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Howl } from "howler";
 import { fetchAudioCatalog, AudioCatalog } from "./api/canciones";
+import { fetchPhotos } from "./api/fotos";
 import { AudioState, AudioFileRecord } from "./api/types";
 import { PlayControl } from "./PlayControl";
 import { Track } from "./Track";
@@ -52,6 +53,8 @@ export const Player = () => {
   };
 
   const [catalog, setCatalog] = useState<AudioCatalog | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [_, setError] = useState<boolean>(false);
 
@@ -122,6 +125,9 @@ export const Player = () => {
             shuffle: false,
           };
         });
+        fetchPhotos().then((p) => {
+          setPhotos(p);
+        });
         setLoading(false);
       })
       .catch((e) => {
@@ -169,6 +175,16 @@ export const Player = () => {
       positionInterval.current = null;
     }
   };
+
+  useEffect(() => {
+    if (photos.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentPhotoIndex((prevIndex) => (prevIndex + 1) % photos.length);
+    }, 3000); // Change photo every 3 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [photos]); // Run this effect when photos are loaded
 
   const trackViewer = () => {
     return (
@@ -219,8 +235,14 @@ export const Player = () => {
   };
   const photoViewer = () => {
     return (
-      <Box sx={{ flex: 1, border: "1px solid red" }}>
-        <Box sx={{ height: "100%", width: "100%" }}></Box>
+      <Box sx={{ flex: 1.5, border: "1px solid red" }}>
+        {photos.length > 0 && (
+          <img
+            src={photos[currentPhotoIndex]}
+            alt={`Slide ${currentPhotoIndex}`}
+            style={{ height: "100%", width: "100%", objectFit: "cover" }}
+          />
+        )}
       </Box>
     );
   };
