@@ -26,8 +26,8 @@
   hosts: localhost
   vars:
     build_path_dest: "{{ '../dist' | realpath }}"
-    audio_path_dest: "/Users/ivanperdomo/canciones"
-    photos_path_dest: "/Users/ivanperdomo/fotos"
+    audio_path_dest: "/Users/ivanperdomo/song-viewer/canciones"
+    photos_path_dest: "/Users/ivanperdomo/song-viewer/fotos"
     server_port: 5001
     domain: "localhost"
   tasks:
