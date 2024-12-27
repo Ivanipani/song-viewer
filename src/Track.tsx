@@ -14,7 +14,6 @@ export const Track = (props: TrackProps) => {
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        border: "1px solid rgba(0, 0, 0, 0.1)",
         width: "100%",
         backgroundColor:
           props?.selectedTrack?.id === props.track.id

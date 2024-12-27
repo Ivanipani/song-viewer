@@ -20,7 +20,9 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <Box
         sx={{
-          minHeight: "calc(var(--vh, 1vh) * 100)",
+          // minHeight: "calc(var(--vh, 1vh) * 100 - var(--marginBlock, 0px))",
+          minHeight: "100dvh",
+          maxHeight: "100dvh",
         }}
       >
         <CssBaseline />

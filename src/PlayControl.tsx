@@ -1,4 +1,4 @@
-import { Box, Slider, Typography, IconButton } from "@mui/material";
+import { Box, Slider, Typography, IconButton, Paper } from "@mui/material";
 import { useEffect } from "react";
 import { AudioState } from "./api/types";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
@@ -97,6 +97,12 @@ export const PlayControl = (props: PlayControlProps) => {
               display: "none",
               height: "10px",
               width: "10px",
+              "&:not(.MuiSlider-active)": {
+                transition: "left 0.1s ease-in",
+              },
+            },
+            "& .MuiSlider-track": {
+              transition: "width 0.1s ease-in",
             },
             "&:hover": {
               opacity: 0.8,
@@ -187,7 +193,7 @@ export const PlayControl = (props: PlayControlProps) => {
   };
 
   return (
-    <Box
+    <Paper
       sx={{
         width: "100%",
         display: "flex",
@@ -195,11 +201,13 @@ export const PlayControl = (props: PlayControlProps) => {
         alignItems: "center",
         justifyContent: "flex-end",
         flex: 1,
+        paddingInline: 2,
+        paddingBlock: 1,
       }}
     >
       {nowPlaying()}
       {progressBar()}
       {controls()}
-    </Box>
+    </Paper>
   );
 };

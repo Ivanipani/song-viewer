@@ -5,7 +5,7 @@ import { fetchPhotos } from "./api/fotos";
 import { AudioState, AudioFileRecord } from "./api/types";
 import { PlayControl } from "./PlayControl";
 import { Track } from "./Track";
-import { Box, Container, CircularProgress } from "@mui/material";
+import { Box, Container, CircularProgress, Paper } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 
 export const Player = () => {
@@ -41,6 +41,10 @@ export const Player = () => {
       },
       onend: () => {
         console.log("onend");
+        setAudioState((prev) => ({
+          ...prev,
+          isPlaying: false,
+        }));
         // stopPositionTracking();
       },
       onpause: () => {
@@ -194,8 +198,7 @@ export const Player = () => {
           flexDirection: "column",
           flex: 1,
           justifyContent: "space-between",
-          padding: 2,
-          border: "1px solid blue",
+          //   padding: 2,
           overflowY: "auto",
         }}
       >
@@ -210,6 +213,7 @@ export const Player = () => {
               alignItems: "flex-start",
               flex: 1,
               overflowY: "auto",
+              padding: 2,
             }}
           >
             {catalog?.songs.map((track: AudioFileRecord) => (
@@ -222,7 +226,7 @@ export const Player = () => {
             ))}
           </Box>
         )}
-        <Box sx={{ flex: 0, height: "15%" }}>
+        <Box sx={{ flex: 0 }}>
           <PlayControl
             audioState={audioState}
             setAudioState={setAudioState}
@@ -235,7 +239,7 @@ export const Player = () => {
   };
   const photoViewer = () => {
     return (
-      <Box sx={{ flex: 1.5, border: "1px solid red" }}>
+      <Box sx={{ flex: 1.5 }}>
         {photos.length > 0 && (
           <img
             src={photos[currentPhotoIndex]}
@@ -247,17 +251,18 @@ export const Player = () => {
     );
   };
   return (
-    <Container
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        maxHeight: "100dvh",
-        minHeight: "100dvh",
-        gap: 1,
-      }}
-    >
-      {trackViewer()}
-      {!isMobile && photoViewer()}
+    <Container sx={{}}>
+      <Paper
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          maxHeight: "100dvh",
+          minHeight: "100dvh",
+        }}
+      >
+        {trackViewer()}
+        {!isMobile && photoViewer()}
+      </Paper>
     </Container>
   );
 };
