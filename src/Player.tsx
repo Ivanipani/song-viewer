@@ -1,15 +1,28 @@
 import { useState, useEffect, useRef } from "react";
 import { Howl } from "howler";
-import { fetchAudioCatalog, AudioCatalog } from "./api/canciones";
-import { fetchPhotos } from "./api/fotos";
 import { AudioState, AudioFileRecord } from "./api/types";
 import { PlayControl } from "./PlayControl";
 import { Track } from "./Track";
 import { Box, Container, CircularProgress, Paper } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
+import { useMedia } from "./contexts/MediaContext";
 
 export const Player = () => {
   const isMobile = useMediaQuery("(max-width: 600px)");
+  const { catalog, photos, loading } = useMedia();
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  // Consolidate audio-related state
+  const [audioState, setAudioState] = useState<AudioState>({
+    isPlaying: false,
+    selectedTrack: null,
+    sound: null,
+    position: 0,
+    duration: 0,
+    loop: "none",
+    shuffle: false,
+  });
+
   const createSound = (url: string) => {
     const sound = new Howl({
       src: [url],
@@ -56,22 +69,6 @@ export const Player = () => {
     return sound;
   };
 
-  const [catalog, setCatalog] = useState<AudioCatalog | null>(null);
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [_, setError] = useState<boolean>(false);
-
-  // Consolidate audio-related state
-  const [audioState, setAudioState] = useState<AudioState>({
-    isPlaying: false,
-    selectedTrack: null,
-    sound: null,
-    position: 0,
-    duration: 0,
-    loop: "none",
-    shuffle: false,
-  });
   // Update the track selection logic
   const handleTrackSelect = (track: AudioFileRecord) => {
     // if (track.id === audioState.selectedTrack?.id) return;
@@ -110,50 +107,6 @@ export const Player = () => {
     if (!prevSong) return;
     handleTrackSelect(prevSong);
   };
-
-  // Load the catalog, select the first song
-  useEffect(() => {
-    setLoading(true);
-    fetchAudioCatalog()
-      .then((c) => {
-        setCatalog(c);
-        setAudioState((prev) => {
-          const newSound = createSound(c.songs[0].url);
-          return {
-            ...prev,
-            selectedTrack: c.songs[0],
-            sound: newSound,
-            position: 0,
-            duration: newSound.duration(),
-            loop: "none",
-            shuffle: false,
-          };
-        });
-        fetchPhotos().then((p) => {
-          setPhotos(p);
-        });
-        setLoading(false);
-      })
-      .catch((e) => {
-        console.error(e);
-        setError(true);
-      });
-    return () => {
-      if (audioState.sound) {
-        audioState.sound.stop();
-        audioState.sound.unload();
-      }
-      stopPositionTracking();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (audioState.sound && audioState.isPlaying) {
-      startPositionTracking();
-    } else {
-      stopPositionTracking();
-    }
-  }, [audioState.sound, audioState.isPlaying]);
 
   // Add ref to store interval ID
   const positionInterval = useRef<number | null>(null);
@@ -250,9 +203,44 @@ export const Player = () => {
       </Box>
     );
   };
+
+  // Update the initial audio state setup in useEffect
+  useEffect(() => {
+    if (catalog) {
+      setAudioState((prev) => {
+        const newSound = createSound(catalog.songs[0].url);
+        return {
+          ...prev,
+          selectedTrack: catalog.songs[0],
+          sound: newSound,
+          position: 0,
+          duration: newSound.duration(),
+          loop: "none",
+          shuffle: false,
+        };
+      });
+    }
+    return () => {
+      if (audioState.sound) {
+        audioState.sound.stop();
+        audioState.sound.unload();
+      }
+      stopPositionTracking();
+    };
+  }, [catalog]);
+
+  useEffect(() => {
+    if (audioState.sound && audioState.isPlaying) {
+      startPositionTracking();
+    } else {
+      stopPositionTracking();
+    }
+  }, [audioState.sound, audioState.isPlaying]);
+
   return (
     <Container sx={{}}>
       <Paper
+        elevation={3}
         sx={{
           display: "flex",
           flexDirection: "row",

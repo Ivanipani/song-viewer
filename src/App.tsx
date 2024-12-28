@@ -2,6 +2,7 @@ import { CssBaseline, Box, ThemeProvider } from "@mui/material";
 import { darkTheme } from "./theme";
 import { Player } from "./Player";
 import { useEffect } from "react";
+import { MediaProvider } from "./contexts/MediaContext";
 
 function App() {
   useEffect(() => {
@@ -18,16 +19,17 @@ function App() {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <Box
-        sx={{
-          // minHeight: "calc(var(--vh, 1vh) * 100 - var(--marginBlock, 0px))",
-          minHeight: "100dvh",
-          maxHeight: "100dvh",
-        }}
-      >
-        <CssBaseline />
-        <Player />
-      </Box>
+      <MediaProvider>
+        <Box
+          sx={{
+            minHeight: "100dvh",
+            maxHeight: "100dvh",
+          }}
+        >
+          <CssBaseline />
+          <Player />
+        </Box>
+      </MediaProvider>
     </ThemeProvider>
   );
 }
