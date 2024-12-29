@@ -3,8 +3,11 @@ import { darkTheme } from "./theme";
 import { Player } from "./Player";
 import { useEffect } from "react";
 import { MediaProvider } from "./contexts/MediaContext";
+import { BrowserProvider, useBrowser } from "./contexts/BrowserContext";
 
-function App() {
+function AppContent() {
+  const { browserInfo } = useBrowser();
+
   useEffect(() => {
     const setVh = () => {
       document.documentElement.style.setProperty(
@@ -18,18 +21,32 @@ function App() {
   }, []);
 
   return (
+    <MediaProvider>
+      <Box
+        sx={{
+          // Use CSS calc() and the --vh variable for mobile devices
+          minHeight: browserInfo.isMobile
+            ? "calc(var(--vh, 1vh) * 100)"
+            : "100dvh",
+          maxHeight: browserInfo.isMobile
+            ? "calc(var(--vh, 1vh) * 100)"
+            : "100dvh",
+          overflow: "hidden", // Prevent scrolling
+        }}
+      >
+        <CssBaseline />
+        <Player />
+      </Box>
+    </MediaProvider>
+  );
+}
+
+function App() {
+  return (
     <ThemeProvider theme={darkTheme}>
-      <MediaProvider>
-        <Box
-          sx={{
-            minHeight: "100dvh",
-            maxHeight: "100dvh",
-          }}
-        >
-          <CssBaseline />
-          <Player />
-        </Box>
-      </MediaProvider>
+      <BrowserProvider>
+        <AppContent />
+      </BrowserProvider>
     </ThemeProvider>
   );
 }
