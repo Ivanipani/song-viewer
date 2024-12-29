@@ -4,14 +4,12 @@ import { AudioState, AudioFileRecord } from "./api/types";
 import { PlayControl } from "./PlayControl";
 import { Track } from "./Track";
 import { Box, Container, CircularProgress, Paper } from "@mui/material";
-import { useMediaQuery } from "@mui/material";
 import { useMedia } from "./contexts/MediaContext";
 import { useBrowser } from "./contexts/BrowserContext";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export const Player = () => {
-  const isMobile = useMediaQuery("(max-width: 600px)");
   const { browserInfo } = useBrowser();
   const { catalog, photos, loading } = useMedia();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
