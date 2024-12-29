@@ -6,9 +6,13 @@ import { Track } from "./Track";
 import { Box, Container, CircularProgress, Paper } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import { useMedia } from "./contexts/MediaContext";
+import { useBrowser } from "./contexts/BrowserContext";
+import IconButton from "@mui/material/IconButton";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export const Player = () => {
   const isMobile = useMediaQuery("(max-width: 600px)");
+  const { browserInfo } = useBrowser();
   const { catalog, photos, loading } = useMedia();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
@@ -22,6 +26,8 @@ export const Player = () => {
     loop: "none",
     shuffle: false,
   });
+
+  const [showTrackPlayer, setShowTrackPlayer] = useState(false);
 
   const createSound = (url: string) => {
     const sound = new Howl({
@@ -179,17 +185,51 @@ export const Player = () => {
             ))}
           </Box>
         )}
+        {(!browserInfo.isMobile || !showTrackPlayer) && (
+          <Box sx={{ flex: 0 }}>
+            <PlayControl
+              audioState={audioState}
+              setAudioState={setAudioState}
+              playNext={playNext}
+              playPrev={playPrev}
+              showTrackPlayer={() => setShowTrackPlayer(true)}
+            />
+          </Box>
+        )}
+      </Box>
+    );
+  };
+
+  const trackPlayer = () => {
+    return (
+      <Box
+        sx={{
+          maxHeight: "100vh",
+          // height: "100dvh",
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+        }}
+      >
+        <Box sx={{ flex: 0 }}>
+          <IconButton sx={{}} onClick={() => setShowTrackPlayer(false)}>
+            <ArrowBackIcon />
+          </IconButton>
+        </Box>
+        {photoViewer()}
         <Box sx={{ flex: 0 }}>
           <PlayControl
             audioState={audioState}
             setAudioState={setAudioState}
             playNext={playNext}
             playPrev={playPrev}
+            showTrackPlayer={() => setShowTrackPlayer(true)}
           />
         </Box>
       </Box>
     );
   };
+
   const photoViewer = () => {
     return (
       <Box sx={{ flex: 1.5 }}>
@@ -238,7 +278,7 @@ export const Player = () => {
   }, [audioState.sound, audioState.isPlaying]);
 
   return (
-    <Container sx={{}}>
+    <Container disableGutters={browserInfo.isMobile}>
       <Paper
         elevation={3}
         sx={{
@@ -248,8 +288,18 @@ export const Player = () => {
           minHeight: "100dvh",
         }}
       >
-        {trackViewer()}
-        {!isMobile && photoViewer()}
+        {browserInfo.isMobile ? (
+          showTrackPlayer ? (
+            trackPlayer()
+          ) : (
+            trackViewer()
+          )
+        ) : (
+          <>
+            {trackViewer()}
+            {photoViewer()}
+          </>
+        )}
       </Paper>
     </Container>
   );

@@ -32,7 +32,7 @@ export const Track = (props: TrackProps) => {
         props.setSelectedTrack(props.track);
       }}
     >
-      <Typography variant="h4">{props.track.title}</Typography>
+      <Typography variant="h6">{props.track.title}</Typography>
     </Box>
   );
 };

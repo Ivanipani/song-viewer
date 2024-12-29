@@ -14,6 +14,7 @@ interface PlayControlProps {
   setAudioState: any;
   playNext: () => void;
   playPrev: () => void;
+  showTrackPlayer: () => void;
 }
 export const PlayControl = (props: PlayControlProps) => {
   const togglePlay = () => {
@@ -204,6 +205,7 @@ export const PlayControl = (props: PlayControlProps) => {
         paddingInline: 2,
         paddingBlock: 1,
       }}
+      onClick={props.showTrackPlayer}
     >
       {nowPlaying()}
       {progressBar()}
