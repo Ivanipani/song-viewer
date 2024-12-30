@@ -202,8 +202,7 @@ export const Player = () => {
     return (
       <Box
         sx={{
-          maxHeight: "100vh",
-          // height: "100dvh",
+          maxHeight: browserInfo.maxScreenHeight,
           display: "flex",
           flexDirection: "column",
           flex: 1,
