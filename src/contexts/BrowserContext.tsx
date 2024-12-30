@@ -12,6 +12,7 @@ interface BrowserInfo {
   browserVersion: string;
   isIOS: boolean;
   isAndroid: boolean;
+  maxScreenHeight: string;
 }
 
 interface BrowserContextType {
@@ -55,6 +56,7 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     browserVersion: "",
     isIOS: false,
     isAndroid: false,
+    maxScreenHeight: "100dvh",
   });
 
   useEffect(() => {
@@ -69,12 +71,18 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     const isAndroid = /Android/.test(navigator.userAgent);
 
     const updateBrowserInfo = (e?: MediaQueryListEvent) => {
+      const isMobile = e ? e.matches : mobileQuery.matches;
+      const maxScreenHeight = isMobile
+        ? "calc(var(--vh, 1vh) * 100)"
+        : "100dvh";
+
       setBrowserInfo({
-        isMobile: e ? e.matches : mobileQuery.matches,
+        isMobile,
         browserName: name,
         browserVersion: version,
         isIOS,
         isAndroid,
+        maxScreenHeight,
       });
     };
 

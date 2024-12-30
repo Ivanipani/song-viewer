@@ -17,7 +17,7 @@ export const Track = (props: TrackProps) => {
         width: "100%",
         backgroundColor:
           props?.selectedTrack?.id === props.track.id
-            ? "rgba(25, 118, 210, 0.08)"
+            ? "rgba(25, 118, 210, 0.25)"
             : "transparent",
         transition: "all 0.2s ease-in-out",
         cursor: "pointer",

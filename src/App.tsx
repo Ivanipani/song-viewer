@@ -24,13 +24,8 @@ function AppContent() {
     <MediaProvider>
       <Box
         sx={{
-          // Use CSS calc() and the --vh variable for mobile devices
-          minHeight: browserInfo.isMobile
-            ? "calc(var(--vh, 1vh) * 100)"
-            : "100dvh",
-          maxHeight: browserInfo.isMobile
-            ? "calc(var(--vh, 1vh) * 100)"
-            : "100dvh",
+          minHeight: browserInfo.maxScreenHeight,
+          maxHeight: browserInfo.maxScreenHeight,
           overflow: "hidden", // Prevent scrolling
         }}
       >
