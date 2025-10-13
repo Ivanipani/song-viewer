@@ -1,6 +1,6 @@
 ---
 - name: Install and configure NGINX
-  hosts: poochella
+  hosts: webservers
   become: true
   tasks:
     - name: Update package cache
@@ -24,7 +24,8 @@
   vars:
     repo_url: "https://github.com/Ivanipani/song-viewer.git"
     local_repo_path: "/tmp/song-viewer"
-    build_path: "/tmp/song-viewer/dist"
+    build_path_full: "/tmp/song-viewer/dist/full"
+    build_path_audio_only: "/tmp/song-viewer/dist/audio-only"
   tasks:
     - name: Clone/pull repository
       ansible.builtin.git:
@@ -47,7 +48,7 @@
       when: git_status.changed
 
 - name: Deploy to web server
-  hosts: poochella
+  hosts: webservers
   become: true
   vars:
     build_path_src: "/tmp/song-viewer/dist"
