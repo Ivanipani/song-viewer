@@ -33,7 +33,6 @@ export function MediaProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       })
       .catch((e) => {
-        console.error(e);
         setError(true);
         setLoading(false);
       });

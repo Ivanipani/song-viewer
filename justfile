@@ -6,3 +6,7 @@ default:
 [working-directory: 'playbook']
 deploy-prod:
     ansible-playbook -K deploy-prod.yml
+
+[working-directory: 'playbook']
+deploy-local:
+    ansible-playbook -K deploy-local.yml
