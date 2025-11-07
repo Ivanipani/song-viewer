@@ -3,7 +3,7 @@ import { Howl } from "howler";
 import { AudioState, AudioFileRecord } from "./api/types";
 import { PlayControl } from "./PlayControl";
 import { Track } from "./Track";
-import { Box, Container, CircularProgress, Paper } from "@mui/material";
+import { Box, CircularProgress, Paper } from "@mui/material";
 import { useMedia } from "./contexts/MediaContext";
 import { useBrowser } from "./contexts/BrowserContext";
 import IconButton from "@mui/material/IconButton";
