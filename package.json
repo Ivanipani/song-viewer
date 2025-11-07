@@ -8,8 +8,7 @@
     "build-dev": "tsc -b && vite build --mode dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "publish": "npm run build && rsync ./dist sidestage:/var/www/song-viewer"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

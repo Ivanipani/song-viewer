@@ -5,8 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { fetchAudioCatalog, AudioCatalog } from "../api/canciones";
-import { fetchPhotos } from "../api/fotos";
+import { fetchAudioCatalog, fetchPhotos, AudioCatalog } from "../api/media";
 
 interface MediaContextType {
   catalog: AudioCatalog | null;
@@ -34,7 +33,6 @@ export function MediaProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       })
       .catch((e) => {
-        console.error(e);
         setError(true);
         setLoading(false);
       });
