@@ -275,29 +275,27 @@ export const Player = () => {
     }, [audioState.sound, audioState.isPlaying]);
 
     return (
-        <Container disableGutters={browserInfo.isMobile}>
-            <Paper
-                elevation={3}
-                sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    maxHeight: "100dvh",
-                    minHeight: "100dvh",
-                }}
-            >
-                {browserInfo.isMobile ? (
-                    showTrackPlayer ? (
-                        trackPlayer()
-                    ) : (
-                        trackViewer()
-                    )
+        <Paper
+            elevation={3}
+            sx={{
+                display: "flex",
+                flexDirection: "row",
+                maxHeight: "100dvh",
+                minHeight: "100dvh",
+            }}
+        >
+            {browserInfo.isMobile ? (
+                showTrackPlayer ? (
+                    trackPlayer()
                 ) : (
-                    <>
-                        {trackViewer()}
-                        {photoViewer()}
-                    </>
-                )}
-            </Paper>
-        </Container>
+                        trackViewer()
+                )
+            ) : (
+                <>
+                    {trackViewer()}
+                    {photoViewer()}
+                </>
+            )}
+        </Paper>
     );
 };
