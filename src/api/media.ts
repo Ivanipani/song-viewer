@@ -1,9 +1,7 @@
 import yaml from "js-yaml";
 import { AudioFileRecord } from "./types";
-import { CANCIONES_API_URL } from "./constants";
-export interface AudioCatalog {
-  songs: AudioFileRecord[];
-}
+import { CANCIONES_API_URL, FOTOS_API_URL } from "./constants";
+
 /**
  * Fetches a list of songs from the API endpoint
  *
@@ -29,4 +27,11 @@ export const fetchAudioCatalog = async (): Promise<AudioCatalog> => {
     return { songs: [] };
     // throw new Error("Failed to fetch audio catalog");
   }
+};
+
+export const fetchPhotos = async (): Promise<string[]> => {
+  const response = await fetch(`${FOTOS_API_URL}/`);
+  const data = await response.json();
+  console.log(data);
+  return data.map((photo: any) => `${FOTOS_API_URL}/${photo.name}`);
 };

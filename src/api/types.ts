@@ -1,3 +1,7 @@
+export interface AudioCatalog {
+  songs: AudioFileRecord[];
+}
+
 export interface AudioFileRecord {
   id: string;
   title: string;

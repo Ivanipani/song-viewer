@@ -5,8 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { fetchAudioCatalog, AudioCatalog } from "../api/canciones";
-import { fetchPhotos } from "../api/fotos";
+import { fetchAudioCatalog, fetchPhotos, AudioCatalog } from "../api/media";
 
 interface MediaContextType {
   catalog: AudioCatalog | null;
