@@ -22,6 +22,17 @@
         not build_stat.stat.exists or
         (src_files.files | map(attribute='mtime') | max) > build_stat.stat.mtime
 
+- name: Deploy catalog
+  hosts: localhost
+  vars:
+    songstore_path: "/Users/ivanperdomo/song-viewer/canciones"
+    catalog_file_path_src: "{{ '../catalog-manager/catalog/catalog.yml' | realpath }}"
+  tasks:
+    - name: Copy catalog.yml to server
+      ansible.builtin.copy:
+        src: "{{ catalog_file_path_src }}"
+        dest: "{{ songstore_path }}/catalog.yml"
+
 - name: Install and configure NGINX
   hosts: localhost
   vars:
