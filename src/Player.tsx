@@ -156,6 +156,7 @@ export const Player = () => {
                     flex: 1,
                     justifyContent: "space-between",
                     //   padding: 2,
+                    maxWidth: "30%",
                     overflowY: "auto",
                 }}
             >
@@ -229,7 +230,7 @@ export const Player = () => {
 
     const photoViewer = () => {
         return (
-            <Box sx={{ flex: 1.5 }}>
+            <Box sx={{ flex: 1.5, padding: 10 }}>
                 {photos.length > 0 && (
                     <img
                         src={photos[currentPhotoIndex]}
