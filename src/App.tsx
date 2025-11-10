@@ -36,7 +36,7 @@ function AppContent() {
     );
 }
 
-function App() {
+export const App = () => {
     return (
         <ThemeProvider theme={darkTheme}>
             <BrowserProvider>
@@ -46,4 +46,3 @@ function App() {
     );
 }
 
-export default App;
