@@ -19,6 +19,74 @@
       ansible.builtin.service:
         name: nginx
         state: restarted
+
+- name: Deploy media to web server
+  hosts: webservers
+  vars:
+    songstore_path_src: "/Users/ivanperdomo/song-viewer/canciones"
+    songstore_path_dest: "/public/song-viewer/canciones"
+    photos_path_src: "/Users/ivanperdomo/song-viewer/fotos"
+    photos_path_dest: "/public/song-viewer/fotos"
+    catalog_file_path_src: "../catalog-manager/catalog/catalog.yml"
+  tasks:
+    - name: Create audio directory
+      ansible.builtin.file:
+        path: "{{ songstore_path_dest }}"
+        state: directory
+        mode: '0777'
+        owner: www-data
+        group: www-data
+      become: true
+    - name: Create photos directory
+      ansible.builtin.file:
+        path: "{{ photos_path_dest }}"
+        state: directory
+        mode: '0777'
+        owner: www-data
+        group: www-data
+      become: true
+    - name: Copy catalog.yml to server
+      ansible.builtin.copy:
+        src: "{{ catalog_file_path_src }}"
+        dest: "{{ songstore_path_dest }}/catalog.yml"
+      become: true
+    - name: Copy audio files to server
+      ansible.builtin.copy:
+        src: "{{ songstore_path_src }}/"
+        dest: "{{ songstore_path_dest }}"
+      become: true
+    - name: Copy photos to server
+      ansible.builtin.copy:
+        src: "{{ photos_path_src }}/"
+        dest: "{{ photos_path_dest }}"
+      become: true
+    - name: "Find all files and folders in {{ songstore_path_dest }}"
+      find:
+        path: "{{ songstore_path_dest }}"
+        file_type: any
+        recurse: true
+      register: folder_contents_songstore
+    - name: Find all files and folders in {{ photos_path_dest }}
+      find:
+        path: "{{ photos_path_dest }}"
+        file_type: any
+        recurse: true
+      register: folder_contents_photos
+    - name: Transfer ownwership of songstore files to www-data
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        owner: www-data
+        group: www-data
+      loop: "{{ folder_contents_songstore.files }}"
+      become: true
+    - name: Transfer ownwership of photos files to www-data
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        owner: www-data
+        group: www-data
+      loop: "{{ folder_contents_photos.files }}"
+      become: true
+
 - name: Build React app locally
   hosts: localhost
   vars:
