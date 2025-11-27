@@ -1,25 +1,4 @@
 ---
-- name: Install and configure NGINX
-  hosts: webservers
-  become: true
-  tasks:
-    - name: Update package cache
-      ansible.builtin.package:
-        update_cache: true
-        cache_valid_time: 3600
-
-    - name: Install NGINX
-      ansible.builtin.package:
-        name: nginx
-        state: present
-      notify:
-        - Restart NGINX
-  handlers:
-    - name: Restart NGINX
-      ansible.builtin.service:
-        name: nginx
-        state: restarted
-
 - name: Deploy media to web server
   hosts: webservers
   vars:
@@ -101,6 +80,7 @@
         dest: "{{ local_repo_path }}"
         clone: true
         update: true
+        force: true
       register: git_status
 
     - name: Install npm dependencies
@@ -115,16 +95,11 @@
         chdir: "{{ local_repo_path }}"
       when: git_status.changed
 
-- name: Deploy to web server
+- name: Deploy React build to web server
   hosts: webservers
-  become: true
   vars:
     build_path_src: "/tmp/song-viewer/dist"
     build_path_dest: "/var/www/song-viewer"
-    audio_path_dest: "/public/song-viewer/canciones"
-    photos_path_dest: "/public/song-viewer/fotos"
-    server_port: 80
-    domain: "canciones.poochella.com"
   tasks:
     - name: Create web app directory
       ansible.builtin.file:
@@ -140,21 +115,29 @@
         dest: "{{ build_path_dest }}"
         mode: '0644'
 
-    - name: Configure NGINX site
+
+- name: Configure NGINX proxy
+  hosts: webservers
+  roles:
+    - role: '/Users/ivanperdomo/github/ivanipani/server-automation/playbooks/roles/nginx'
+  vars:
+    build_path_dest: /var/www/song-viewer
+    audio_path_dest: /public/song-viewer/canciones
+    photos_path_dest: /public/song-viewer/fotos
+    server_port: 80
+    domain: canciones.poochella.club
+  tasks:
+    - name: Create nginx configuration from template
       ansible.builtin.template:
-        src: nginx-react-app.conf.j2
+        src: templates/nginx-react-app.conf.j2
         dest: /etc/nginx/sites-available/song-viewer
         mode: '0644'
-      notify: Restart NGINX
+      notify: "restart nginx"
+
     - name: Enable NGINX site
       ansible.builtin.file:
         src: /etc/nginx/sites-available/song-viewer
         dest: /etc/nginx/sites-enabled/song-viewer
         state: link
-      notify: Restart NGINX
-  handlers:
-    - name: Restart NGINX
-      become: true
-      ansible.builtin.service:
-        name: nginx
-        state: restarted
+      notify: "restart nginx"
+
