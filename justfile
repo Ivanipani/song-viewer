@@ -30,3 +30,11 @@ deploy-task:
     echo "Starting from task: $TASK"
     ansible-playbook deploy-prod.yml --start-at-task "$TASK"
 
+# Run a single playbook
+[script("zsh")]
+[working-directory: 'playbook']
+run-single:
+    PLAYBOOK=$(ls deploy*.yml | fzf)
+    echo "Running playbook: $PLAYBOOK"
+    ansible-playbook "$PLAYBOOK"
+
