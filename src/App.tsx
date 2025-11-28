@@ -1,8 +1,8 @@
 import { CssBaseline, Box, ThemeProvider } from "@mui/material";
+import { Routes, Route } from "react-router";
 import { darkTheme } from "./theme";
 import { Player } from "./Player";
 import { useEffect } from "react";
-import { MediaProvider } from "./contexts/MediaContext";
 import { BrowserProvider, useBrowser } from "./contexts/BrowserContext";
 
 function AppContent() {
@@ -21,18 +21,18 @@ function AppContent() {
     }, []);
 
     return (
-        <MediaProvider>
-            <Box
-                sx={{
-                    minHeight: browserInfo.maxScreenHeight,
-                    maxHeight: browserInfo.maxScreenHeight,
-                    overflow: "hidden", // Prevent scrolling
-                }}
-            >
-                <CssBaseline />
-                <Player />
-            </Box>
-        </MediaProvider>
+        <Box
+            sx={{
+                minHeight: browserInfo.maxScreenHeight,
+                maxHeight: browserInfo.maxScreenHeight,
+                overflow: "hidden", // Prevent scrolling
+            }}
+        >
+            <CssBaseline />
+            <Routes>
+                <Route path="/" element={<Player />} />
+            </Routes>
+        </Box>
     );
 }
 

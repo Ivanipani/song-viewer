@@ -1,0 +1,26 @@
+---
+- name: Configure NGINX proxy
+  hosts: webservers
+  roles:
+    - role: '/Users/ivanperdomo/github/ivanipani/server-automation/playbooks/roles/nginx'
+  vars:
+    build_path_dest: /var/www/song-viewer
+    audio_path_dest: /public/song-viewer/canciones
+    photos_path_dest: /public/song-viewer/fotos
+    server_port: 80
+    domain: canciones.poochella.club
+  tasks:
+    - name: Create nginx configuration from template
+      ansible.builtin.template:
+        src: templates/nginx-react-app.conf.j2
+        dest: /etc/nginx/sites-available/song-viewer
+        mode: '0644'
+      notify: "restart nginx"
+
+    - name: Enable NGINX site
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/song-viewer
+        dest: /etc/nginx/sites-enabled/song-viewer
+        state: link
+      notify: "restart nginx"
+
