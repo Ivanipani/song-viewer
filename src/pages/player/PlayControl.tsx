@@ -1,13 +1,23 @@
-import { Box, Slider, Text, Title, ActionIcon, Paper } from "@mantine/core";
+import { Box, Slider, Text, Title, ActionIcon } from "@mantine/core";
 import { useEffect } from "react";
 import { AudioState } from "../../api/types";
 import {
   IconPlayerSkipBack,
   IconPlayerPlay,
   IconPlayerPause,
-  IconPlayerSkipForward
-} from '@tabler/icons-react';
+  IconPlayerSkipForward,
+  IconArrowsShuffle,
+  IconRepeat,
+  IconRepeatOnce,
+} from "@tabler/icons-react";
 import classes from './PlayControl.module.css';
+
+const formatTime = (seconds: number) => {
+  const roundedSeconds = Math.round(seconds);
+  const minutes = Math.floor(roundedSeconds / 60);
+  const remainingSeconds = Math.round(roundedSeconds % 60);
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
 
 interface PlayControlProps {
   audioState: AudioState;
@@ -23,11 +33,29 @@ export const PlayControl = (props: PlayControlProps) => {
             isPlaying: !prev.isPlaying,
         }));
     };
-    const formatTime = (seconds: number) => {
-        const roundedSeconds = Math.round(seconds);
-        const minutes = Math.floor(roundedSeconds / 60);
-        const remainingSeconds = Math.round(roundedSeconds % 60);
-        return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+
+    const toggleShuffle = () => {
+      props.setAudioState((prev: AudioState) => ({
+        ...prev,
+        shuffle: !prev.shuffle,
+      }));
+    };
+
+    const toggleLoop = () => {
+      props.setAudioState((prev: AudioState) => {
+        let newLoop: "single" | "all" | "none" = "none";
+        if (prev.loop === "none") {
+          newLoop = "all";
+        } else if (prev.loop === "all") {
+          newLoop = "single";
+        } else {
+          newLoop = "none";
+        }
+        return {
+          ...prev,
+          loop: newLoop,
+        };
+      });
     };
 
     useEffect(() => {
@@ -71,9 +99,7 @@ export const PlayControl = (props: PlayControlProps) => {
               alignItems: "center",
             }}
           >
-            <Text size="sm">
-              {formatTime(props.audioState?.position ?? 0)}
-            </Text>
+            <Text size="sm">{formatTime(props.audioState?.position ?? 0)}</Text>
             <Slider
               min={0}
               max={props.audioState?.duration ?? 100}
@@ -90,11 +116,10 @@ export const PlayControl = (props: PlayControlProps) => {
                 props.audioState.sound.seek(value as number);
               }}
               className={classes.slider}
+              label={null}
               color="white"
             />
-            <Text size="sm">
-              {formatTime(props.audioState?.duration ?? 0)}
-            </Text>
+            <Text size="sm">{formatTime(props.audioState?.duration ?? 0)}</Text>
           </Box>
         );
     };
@@ -129,26 +154,69 @@ export const PlayControl = (props: PlayControlProps) => {
     //     }
     //   };
     const controls = () => {
-        return (
-            <Box>
-                <ActionIcon onClick={props.playPrev} variant="subtle">
-                    <IconPlayerSkipBack />
-                </ActionIcon>
+        const getLoopIcon = () => {
+          if (props.audioState.loop === "single") {
+            return <IconRepeatOnce />;
+          } else if (props.audioState.loop === "all") {
+            return <IconRepeat />;
+          } else {
+            return <IconRepeat />;
+          }
+        };
 
-                <ActionIcon
-                    onClick={togglePlay}
-                    variant="subtle"
-                    style={{
-                        color: "white",
-                        padding: "8px 16px",
-                    }}
-                >
-                    {props.audioState?.isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
-                </ActionIcon>
-                <ActionIcon onClick={props.playNext} variant="subtle">
-                    <IconPlayerSkipForward />
-                </ActionIcon>
+        const getLoopColor = () => {
+          return props.audioState.loop !== "none" ? "blue" : "gray";
+        };
+
+        return (
+          <Box
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <ActionIcon
+              onClick={toggleLoop}
+              variant="subtle"
+              color={getLoopColor()}
+            >
+              {getLoopIcon()}
+            </ActionIcon>
+
+            <Box
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
+              }}
+            >
+              <ActionIcon onClick={props.playPrev} variant="subtle">
+                <IconPlayerSkipBack />
+              </ActionIcon>
+
+              <ActionIcon onClick={togglePlay} variant="subtle">
+                {props.audioState?.isPlaying ? (
+                  <IconPlayerPause />
+                ) : (
+                  <IconPlayerPlay />
+                )}
+              </ActionIcon>
+              <ActionIcon onClick={props.playNext} variant="subtle">
+                <IconPlayerSkipForward />
+              </ActionIcon>
             </Box>
+
+            <ActionIcon
+              onClick={toggleShuffle}
+              variant="subtle"
+              color={props.audioState?.shuffle ? "blue" : "gray"}
+            >
+              <IconArrowsShuffle />
+            </ActionIcon>
+          </Box>
         );
     };
     const nowPlaying = () => {
@@ -165,23 +233,21 @@ export const PlayControl = (props: PlayControlProps) => {
     };
 
     return (
-        <Paper
-            shadow="md"
+        <Box
             style={{
                 width: "100%",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "flex-end",
-                flex: 1,
                 paddingInline: "1rem",
                 paddingBlock: "0.5rem",
+                borderTop: "1px solid var(--mantine-color-dark-4)",
             }}
-            onClick={props.showTrackPlayer}
         >
             {nowPlaying()}
             {progressBar()}
             {controls()}
-        </Paper>
+        </Box>
     );
 };

@@ -26,17 +26,62 @@ export function getPreviousTrackIndex(currentIndex: number): number | null {
 }
 
 /**
- * Gets the next track from the catalog
+ * Gets a random track from the catalog, excluding the current track
  * @param currentTrack - The currently playing track
  * @param catalog - The audio catalog
- * @returns The next track, or null if at the end
+ * @returns A random track, or null if catalog is empty
  */
-export function getNextTrack(
+export function getRandomTrack(
   currentTrack: AudioFileRecord | null,
   catalog: AudioCatalog
 ): AudioFileRecord | null {
+  if (catalog.songs.length === 0) return null;
+  if (catalog.songs.length === 1) return catalog.songs[0];
+
+  // Get random track that's not the current track
+  let randomTrack: AudioFileRecord;
+  do {
+    const randomIndex = Math.floor(Math.random() * catalog.songs.length);
+    randomTrack = catalog.songs[randomIndex];
+  } while (currentTrack && randomTrack.id === currentTrack.id);
+
+  return randomTrack;
+}
+
+/**
+ * Gets the next track from the catalog
+ * @param currentTrack - The currently playing track
+ * @param catalog - The audio catalog
+ * @param shuffle - Whether shuffle mode is enabled
+ * @param loop - Loop mode: "none", "single", "all"
+ * @returns The next track, or null if at the end (when not looping)
+ */
+export function getNextTrack(
+  currentTrack: AudioFileRecord | null,
+  catalog: AudioCatalog,
+  shuffle: boolean = false,
+  loop: "single" | "all" | "none" = "none",
+): AudioFileRecord | null {
   if (!currentTrack) return null;
+
+  // If loop is set to "single", return the same track
+  if (loop === "single") {
+    return currentTrack;
+  }
+
+  // If shuffle is enabled, return a random track
+  if (shuffle) {
+    return getRandomTrack(currentTrack, catalog);
+  }
+
+  // Otherwise, return the next track in order
   const nextIndex = getNextTrackIndex(currentTrack.index, catalog.songs.length);
+
+  // If we're at the end and loop is "all", go back to the first track
+  if (nextIndex === null && loop === "all") {
+    return catalog.songs[0];
+  }
+
   return nextIndex !== null ? catalog.songs[nextIndex] : null;
 }
 
@@ -44,13 +89,29 @@ export function getNextTrack(
  * Gets the previous track from the catalog
  * @param currentTrack - The currently playing track
  * @param catalog - The audio catalog
- * @returns The previous track, or null if at the beginning
+ * @param shuffle - Whether shuffle mode is enabled
+ * @param loop - Loop mode: "none", "single", "all"
+ * @returns The previous track, or null if at the beginning (when not looping)
  */
 export function getPreviousTrack(
   currentTrack: AudioFileRecord | null,
-  catalog: AudioCatalog
+  catalog: AudioCatalog,
+  shuffle: boolean = false,
+  loop: "single" | "all" | "none" = "none",
 ): AudioFileRecord | null {
   if (!currentTrack) return null;
+
+  // If loop is set to "single", return the same track
+  if (loop === "single") {
+    return currentTrack;
+  }
+
+  // If shuffle is enabled, return a random track
+  if (shuffle) {
+    return getRandomTrack(currentTrack, catalog);
+  }
+
+  // Otherwise, return the previous track in order
   const prevIndex = getPreviousTrackIndex(currentTrack.index);
   return prevIndex !== null ? catalog.songs[prevIndex] : null;
 }
