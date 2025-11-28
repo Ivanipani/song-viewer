@@ -1,4 +1,5 @@
 import { CssBaseline, Box, ThemeProvider } from "@mui/material";
+import { Routes, Route } from "react-router";
 import { darkTheme } from "./theme";
 import { Player } from "./Player";
 import { useEffect } from "react";
@@ -30,7 +31,9 @@ function AppContent() {
                 }}
             >
                 <CssBaseline />
-                <Player />
+                <Routes>
+                    <Route path="/" element={<Player />} />
+                </Routes>
             </Box>
         </MediaProvider>
     );
