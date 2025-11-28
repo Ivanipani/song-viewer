@@ -91,10 +91,26 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
             }));
           },
           onEnd: () => {
-            setAudioState((state) => ({
-              ...state,
-              isPlaying: false,
-            }));
+            // Check if there's a next track to play
+            if (catalog) {
+              const nextTrack = getNextTrack(track, catalog);
+              if (nextTrack) {
+                // Auto-play next track
+                handleTrackSelect(nextTrack);
+              } else {
+                // Last track finished, stop playback
+                setAudioState((state) => ({
+                  ...state,
+                  isPlaying: false,
+                }));
+              }
+            } else {
+              // No catalog, just stop
+              setAudioState((state) => ({
+                ...state,
+                isPlaying: false,
+              }));
+            }
           },
         });
 
@@ -108,7 +124,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
         };
       });
     },
-    [setSearchParams]
+    [setSearchParams, catalog]
   );
 
   /**
@@ -166,10 +182,18 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
         }));
       },
       onEnd: () => {
-        setAudioState((prev) => ({
-          ...prev,
-          isPlaying: false,
-        }));
+        // Check if there's a next track to play
+        const nextTrack = getNextTrack(trackToLoad, catalog);
+        if (nextTrack) {
+          // Auto-play next track
+          handleTrackSelect(nextTrack);
+        } else {
+          // Last track finished, stop playback
+          setAudioState((prev) => ({
+            ...prev,
+            isPlaying: false,
+          }));
+        }
       },
     });
 
@@ -177,7 +201,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
       ...prev,
       ...initialState,
     }));
-  }, [catalog, searchParams, audioState.selectedTrack]);
+  }, [catalog, searchParams, audioState.selectedTrack, handleTrackSelect]);
 
   /**
    * Cleanup on unmount
