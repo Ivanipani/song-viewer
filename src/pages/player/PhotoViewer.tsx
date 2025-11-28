@@ -7,12 +7,12 @@ interface PhotoViewerProps {
 
 export function PhotoViewer({ photos, currentPhotoIndex }: PhotoViewerProps) {
   return (
-    <Box style={{ flex: 1.5, padding: "2.5rem" }}>
+    <Box style={{ width: "100%", height: "100%", padding: "2rem" }}>
       {photos.length > 0 && (
         <img
           src={photos[currentPhotoIndex]}
           alt={`Slide ${currentPhotoIndex}`}
-          style={{ height: "100%", width: "100%", objectFit: "cover" }}
+          style={{ height: "100%", width: "100%", objectFit: "contain" }}
         />
       )}
     </Box>

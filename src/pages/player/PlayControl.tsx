@@ -1,4 +1,4 @@
-import { Box, Slider, Text, Title, ActionIcon, Paper } from "@mantine/core";
+import { Box, Slider, Text, Title, ActionIcon } from "@mantine/core";
 import { useEffect } from "react";
 import { AudioState } from "../../api/types";
 import {
@@ -233,23 +233,21 @@ export const PlayControl = (props: PlayControlProps) => {
     };
 
     return (
-        <Paper
-            shadow="md"
+        <Box
             style={{
                 width: "100%",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "flex-end",
-                flex: 1,
                 paddingInline: "1rem",
                 paddingBlock: "0.5rem",
+                borderTop: "1px solid var(--mantine-color-dark-4)",
             }}
-            onClick={props.showTrackPlayer}
         >
             {nowPlaying()}
             {progressBar()}
             {controls()}
-        </Paper>
+        </Box>
     );
 };
