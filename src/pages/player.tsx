@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useLoaderData } from "react-router";
-import { AudioFileRecord, AudioCatalog } from "../api/types";
-import { PlayControl } from "../PlayControl";
-import { Track } from "../Track";
-import { Box, Paper } from "@mui/material";
+import { AudioCatalog } from "../api/types";
+import { Paper } from "@mui/material";
 import { useBrowser } from "../contexts/BrowserContext";
-import IconButton from "@mui/material/IconButton";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { fetchAudioCatalog, fetchPhotos } from "../api/media";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
+import { TrackViewer } from "./player/TrackViewer";
+import { TrackPlayer } from "./player/TrackPlayer";
+import { PhotoViewer } from "./player/PhotoViewer";
 
 export async function clientLoader() {
   const [catalog, photos] = await Promise.all([
@@ -43,97 +42,6 @@ export default function Player () {
         return () => clearInterval(interval); // Cleanup on unmount
     }, [showSlideshow, photos]); // Run this effect when showSlideshow or photos change
 
-    const trackViewer = () => {
-        return (
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    flex: 1,
-                    justifyContent: "space-between",
-                    //   padding: 2,
-                    maxWidth: "30%",
-                    overflowY: "auto",
-                }}
-            >
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "flex-start",
-                        alignItems: "flex-start",
-                        flex: 1,
-                        overflowY: "auto",
-                        padding: 2,
-                    }}
-                >
-                    {catalog.songs.map((track: AudioFileRecord) => (
-                        <Track
-                            key={track.id}
-                            track={track}
-                            selectedTrack={audioState.selectedTrack}
-                            setSelectedTrack={handleTrackSelect}
-                        />
-                    ))}
-                </Box>
-                {(!browserInfo.isMobile || !showTrackPlayer) && (
-                    <Box sx={{ flex: 0 }}>
-                        <PlayControl
-                            audioState={audioState}
-                            setAudioState={setAudioState}
-                            playNext={playNext}
-                            playPrev={playPrev}
-                            showTrackPlayer={() => setShowTrackPlayer(true)}
-                        />
-                    </Box>
-                )}
-            </Box>
-        );
-    };
-
-    const trackPlayer = () => {
-        return (
-            <Box
-                sx={{
-                    maxHeight: browserInfo.maxScreenHeight,
-                    display: "flex",
-                    flexDirection: "column",
-                    flex: 1,
-                }}
-            >
-                <Box sx={{ flex: 0 }}>
-                    <IconButton sx={{}} onClick={() => setShowTrackPlayer(false)}>
-                        <ArrowBackIcon />
-                    </IconButton>
-                </Box>
-                {showSlideshow && photoViewer()}
-                <Box sx={{ flex: 0 }}>
-                    <PlayControl
-                        audioState={audioState}
-                        setAudioState={setAudioState}
-                        playNext={playNext}
-                        playPrev={playPrev}
-                        showTrackPlayer={() => setShowTrackPlayer(true)}
-                    />
-                </Box>
-            </Box>
-        );
-    };
-
-    const photoViewer = () => {
-        return (
-            <Box sx={{ flex: 1.5, padding: 10 }}>
-                {photos.length > 0 && (
-                    <img
-                        src={photos[currentPhotoIndex]}
-                        alt={`Slide ${currentPhotoIndex}`}
-                        style={{ height: "100%", width: "100%", objectFit: "cover" }}
-                    />
-                )}
-            </Box>
-        );
-    };
-
     return (
         <Paper
             elevation={3}
@@ -146,14 +54,49 @@ export default function Player () {
         >
             {browserInfo.isMobile ? (
                 showTrackPlayer ? (
-                    trackPlayer()
+                    <TrackPlayer
+                        audioState={audioState}
+                        setAudioState={setAudioState}
+                        playNext={playNext}
+                        playPrev={playPrev}
+                        maxScreenHeight={browserInfo.maxScreenHeight}
+                        showSlideshow={showSlideshow}
+                        photos={photos}
+                        currentPhotoIndex={currentPhotoIndex}
+                        onBack={() => setShowTrackPlayer(false)}
+                    />
                 ) : (
-                        trackViewer()
+                    <TrackViewer
+                        catalog={catalog}
+                        audioState={audioState}
+                        handleTrackSelect={handleTrackSelect}
+                        setAudioState={setAudioState}
+                        playNext={playNext}
+                        playPrev={playPrev}
+                        isMobile={browserInfo.isMobile}
+                        showTrackPlayer={showTrackPlayer}
+                        onShowTrackPlayer={() => setShowTrackPlayer(true)}
+                    />
                 )
             ) : (
                 <>
-                    {trackViewer()}
-                        {showSlideshow && photoViewer()}
+                    <TrackViewer
+                        catalog={catalog}
+                        audioState={audioState}
+                        handleTrackSelect={handleTrackSelect}
+                        setAudioState={setAudioState}
+                        playNext={playNext}
+                        playPrev={playPrev}
+                        isMobile={browserInfo.isMobile}
+                        showTrackPlayer={showTrackPlayer}
+                        onShowTrackPlayer={() => setShowTrackPlayer(true)}
+                    />
+                    {showSlideshow && (
+                        <PhotoViewer
+                            photos={photos}
+                            currentPhotoIndex={currentPhotoIndex}
+                        />
+                    )}
                 </>
             )}
         </Paper>
