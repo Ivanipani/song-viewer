@@ -71,9 +71,7 @@ export const PlayControl = (props: PlayControlProps) => {
               alignItems: "center",
             }}
           >
-            <Text size="sm">
-              {formatTime(props.audioState?.position ?? 0)}
-            </Text>
+            <Text size="sm">{formatTime(props.audioState?.position ?? 0)}</Text>
             <Slider
               min={0}
               max={props.audioState?.duration ?? 100}
@@ -90,11 +88,10 @@ export const PlayControl = (props: PlayControlProps) => {
                 props.audioState.sound.seek(value as number);
               }}
               className={classes.slider}
+              label={null}
               color="white"
             />
-            <Text size="sm">
-              {formatTime(props.audioState?.duration ?? 0)}
-            </Text>
+            <Text size="sm">{formatTime(props.audioState?.duration ?? 0)}</Text>
           </Box>
         );
     };
@@ -138,10 +135,6 @@ export const PlayControl = (props: PlayControlProps) => {
                 <ActionIcon
                     onClick={togglePlay}
                     variant="subtle"
-                    style={{
-                        color: "white",
-                        padding: "8px 16px",
-                    }}
                 >
                     {props.audioState?.isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
                 </ActionIcon>

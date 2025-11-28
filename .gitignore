@@ -25,3 +25,6 @@ dist-ssr
 .vite/
 .react-router/
 build
+.claude
+CLAUDE.md
+
