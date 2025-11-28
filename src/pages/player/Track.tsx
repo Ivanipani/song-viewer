@@ -1,15 +1,13 @@
 import { Box, Typography } from "@mui/material";
-import { useSearchParams } from "react-router";
 import { AudioFileRecord } from "../../api/types";
 
 interface TrackProps {
-    track: AudioFileRecord;
-    selectedTrack: AudioFileRecord | null;
-    setSelectedTrack: (audio: AudioFileRecord) => any;
+  track: AudioFileRecord;
+  selectedTrack: AudioFileRecord | null;
+  setSelectedTrack: (audio: AudioFileRecord) => void;
 }
 
 export const Track = (props: TrackProps) => {
-    const [searchParams] = useSearchParams();
     const isSelected = props?.selectedTrack?.id === props.track.id;
 
     const handleClick = () => {

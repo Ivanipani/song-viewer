@@ -7,28 +7,21 @@ import { useAudioPlayer } from "../../hooks/useAudioPlayer";
 
 export default function FullPlayer() {
   const matches = useMatches();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { browserInfo } = useBrowser();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   // Find parent route data - check all matches for data
-  const parentMatch = matches.find(match => match.data && 'catalog' in match.data);
-  const parentData = parentMatch?.data as { catalog: AudioCatalog; photos: string[] } | undefined;
+  const parentMatch = matches.find(
+    (match) => match.data && typeof match.data === "object" && "catalog" in match.data
+  );
+  const parentData = parentMatch?.data as
+    | { catalog: AudioCatalog; photos: string[] }
+    | undefined;
 
   const catalog = parentData?.catalog;
   const photos = parentData?.photos || [];
-
-  // Backward compatibility: redirect ?aita to ?slideshow=true
-  useEffect(() => {
-    if (searchParams.has('aita')) {
-      setSearchParams(prev => {
-        prev.delete('aita');
-        prev.set('slideshow', 'true');
-        return prev;
-      }, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
 
   const showSlideshow = searchParams.get('slideshow') === 'true';
 
