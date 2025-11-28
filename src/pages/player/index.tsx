@@ -9,7 +9,7 @@ import { useAudioPlayer } from "../../hooks/useAudioPlayer";
 
 export default function PlayerIndex() {
   const matches = useMatches();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { browserInfo } = useBrowser();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
@@ -19,6 +19,18 @@ export default function PlayerIndex() {
 
   const catalog = parentData?.catalog;
   const photos = parentData?.photos || [];
+
+  // Backward compatibility: redirect ?aita to ?slideshow=true
+  useEffect(() => {
+    if (searchParams.has('aita')) {
+      setSearchParams(prev => {
+        prev.delete('aita');
+        prev.set('slideshow', 'true');
+        return prev;
+      }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   const showSlideshow = searchParams.get('slideshow') === 'true';
 
   const { audioState, setAudioState, handleTrackSelect, playNext, playPrev } =

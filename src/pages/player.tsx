@@ -1,6 +1,21 @@
 import { Outlet, useRouteError, useNavigate } from "react-router";
+import type { ShouldRevalidateFunction } from "react-router";
 import { Paper, Typography, Button, Box } from "@mui/material";
 import { fetchAudioCatalog, fetchPhotos } from "../api/media";
+
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate
+}) => {
+  // Don't refetch catalog when just changing query params (track selection, slideshow toggle)
+  // Only refetch if pathname changes or if it's the initial load
+  if (currentUrl.pathname === nextUrl.pathname) {
+    return false;
+  }
+
+  return defaultShouldRevalidate;
+};
 
 export async function clientLoader() {
   try {
