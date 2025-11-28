@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useMatches } from "react-router";
-import { AppShell, Box, Text, Anchor, ScrollArea } from "@mantine/core";
+import { AppShell, Box, Anchor, ScrollArea } from "@mantine/core";
 import { AudioCatalog, AudioFileRecord } from "../../api/types";
 import { Track } from "./Track";
 import { PlayControl } from "./PlayControl";

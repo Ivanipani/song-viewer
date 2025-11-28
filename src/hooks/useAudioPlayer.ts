@@ -73,10 +73,13 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
   const handleTrackSelect = useCallback(
     (track: AudioFileRecord) => {
       // Update URL with track ID
-      setSearchParams(prev => {
-        prev.set('track', track.id);
-        return prev;
-      }, { replace: false });
+      setSearchParams(
+        (prev) => {
+          prev.set("track", track.id);
+          return prev;
+        },
+        { replace: false },
+      );
 
       setAudioState((prev) => {
         // Clean up previous sound
@@ -94,7 +97,12 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
             // Check if there's a next track to play
             if (catalog) {
               setAudioState((state) => {
-                const nextTrack = getNextTrack(track, catalog, state.shuffle, state.loop);
+                const nextTrack = getNextTrack(
+                  track,
+                  catalog,
+                  state.shuffle,
+                  state.loop,
+                );
                 if (nextTrack) {
                   // Auto-play next track
                   handleTrackSelect(nextTrack);
@@ -127,7 +135,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
         };
       });
     },
-    [setSearchParams, catalog]
+    [setSearchParams, catalog],
   );
 
   /**
@@ -135,11 +143,22 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
    */
   const playNext = useCallback(() => {
     if (!catalog) return;
-    const nextTrack = getNextTrack(audioState.selectedTrack, catalog, audioState.shuffle, audioState.loop);
+    const nextTrack = getNextTrack(
+      audioState.selectedTrack,
+      catalog,
+      audioState.shuffle,
+      audioState.loop,
+    );
     if (nextTrack) {
       handleTrackSelect(nextTrack);
     }
-  }, [audioState.selectedTrack, audioState.shuffle, audioState.loop, catalog, handleTrackSelect]);
+  }, [
+    audioState.selectedTrack,
+    audioState.shuffle,
+    audioState.loop,
+    catalog,
+    handleTrackSelect,
+  ]);
 
   /**
    * Plays the previous track in the catalog
@@ -204,49 +223,82 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
       return;
     }
 
-    const trackId = searchParams.get('track');
+    const trackId = searchParams.get("track");
     let trackToLoad = catalog.songs[0]; // Default to first track
 
     if (trackId) {
       // Try to load track from URL
-      const track = catalog.songs.find(s => s.id === trackId);
+      const track = catalog.songs.find((s) => s.id === trackId);
       if (track) {
         trackToLoad = track;
       }
     }
 
     // Initialize with the selected track
-    const initialState = createInitialAudioState({ songs: [trackToLoad] } as AudioCatalog, {
-      onLoad: (duration) => {
-        setAudioState((prev) => ({
-          ...prev,
-          duration,
-        }));
+    const initialState = createInitialAudioState(
+      { songs: [trackToLoad] } as AudioCatalog,
+      {
+        onLoad: (duration) => {
+          setAudioState((prev) => ({
+            ...prev,
+            duration,
+          }));
+        },
+        onEnd: () => {
+          // Check if there's a next track to play
+          setAudioState((state) => {
+            const nextTrack = getNextTrack(
+              trackToLoad,
+              catalog,
+              state.shuffle,
+              state.loop,
+            );
+            if (nextTrack) {
+              // Auto-play next track
+              handleTrackSelect(nextTrack);
+              return state;
+            } else {
+              // Last track finished, stop playback
+              return {
+                ...state,
+                isPlaying: false,
+              };
+            }
+          });
+        },
       },
-      onEnd: () => {
-        // Check if there's a next track to play
-        setAudioState((state) => {
-          const nextTrack = getNextTrack(trackToLoad, catalog, state.shuffle, state.loop);
-          if (nextTrack) {
-            // Auto-play next track
-            handleTrackSelect(nextTrack);
-            return state;
-          } else {
-            // Last track finished, stop playback
-            return {
-              ...state,
-              isPlaying: false,
-            };
-          }
-        });
-      },
-    });
+    );
 
     setAudioState((prev) => ({
       ...prev,
       ...initialState,
     }));
   }, [catalog, searchParams, audioState.selectedTrack, handleTrackSelect]);
+
+  /**
+   * Handle URL changes (browser back/forward navigation)
+   */
+  useEffect(() => {
+    if (!catalog || !catalog.songs || catalog.songs.length === 0) {
+      return;
+    }
+
+    // Skip if no track is selected yet (initialization will handle it)
+    if (!audioState.selectedTrack) {
+      return;
+    }
+
+    const trackId = searchParams.get("track");
+
+    // If URL has a track ID and it's different from current track
+    if (trackId && trackId !== audioState.selectedTrack.id) {
+      const track = catalog.songs.find((s) => s.id === trackId);
+      if (track) {
+        // Load the track from URL
+        handleTrackSelect(track);
+      }
+    }
+  }, [searchParams]);
 
   /**
    * Cleanup on unmount
@@ -267,7 +319,12 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
     } else {
       stopPositionTracking();
     }
-  }, [audioState.sound, audioState.isPlaying, startPositionTracking, stopPositionTracking]);
+  }, [
+    audioState.sound,
+    audioState.isPlaying,
+    startPositionTracking,
+    stopPositionTracking,
+  ]);
 
   return {
     audioState,
