@@ -1,9 +1,9 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
-import { CssBaseline, Box, ThemeProvider } from "@mui/material";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useNavigation } from "react-router";
+import { CssBaseline, Box, ThemeProvider, Typography, Button, LinearProgress } from "@mui/material";
 import { darkTheme } from "./theme";
 import { useEffect } from "react";
-import { MediaProvider } from "./contexts/MediaContext";
 import { BrowserProvider, useBrowser } from "./contexts/BrowserContext";
+import { PlayerSkeleton } from "./pages/player/PlayerSkeleton";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 
@@ -27,6 +27,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function NavigationProgress() {
+  const navigation = useNavigation();
+  const isNavigating = navigation.state === 'loading';
+
+  return (
+    <LinearProgress
+      sx={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999,
+        opacity: isNavigating ? 1 : 0,
+        transition: 'opacity 0.2s',
+        visibility: isNavigating ? 'visible' : 'hidden'
+      }}
+    />
+  );
+}
+
 function AppContent() {
   const { browserInfo } = useBrowser();
 
@@ -43,17 +63,45 @@ function AppContent() {
   }, []);
 
   return (
-    <MediaProvider>
-      <Box
-        sx={{
-          minHeight: browserInfo.maxScreenHeight,
-          maxHeight: browserInfo.maxScreenHeight,
-          overflow: "hidden", // Prevent scrolling
-        }}
-      >
-        <Outlet />
+    <Box
+      sx={{
+        minHeight: browserInfo.maxScreenHeight,
+        maxHeight: browserInfo.maxScreenHeight,
+        overflow: "hidden", // Prevent scrolling
+      }}
+    >
+      <Outlet />
+    </Box>
+  );
+}
+
+export function HydrateFallback() {
+  return (
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <PlayerSkeleton />
+    </ThemeProvider>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  return (
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <Box sx={{ padding: 4, textAlign: 'center', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box>
+          <Typography variant="h3" gutterBottom>Something went wrong</Typography>
+          <Typography variant="body1" sx={{ mt: 2, mb: 3 }}>
+            {error instanceof Error ? error.message : 'Unknown error'}
+          </Typography>
+          <Button variant="contained" onClick={() => window.location.href = '/'}>
+            Go Home
+          </Button>
+        </Box>
       </Box>
-    </MediaProvider>
+    </ThemeProvider>
   );
 }
 
@@ -61,6 +109,7 @@ export default function Root() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
+      <NavigationProgress />
       <BrowserProvider>
         <AppContent />
       </BrowserProvider>

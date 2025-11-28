@@ -32,8 +32,16 @@ export const fetchAudioCatalog = async (): Promise<AudioCatalog> => {
 };
 
 export const fetchPhotos = async (): Promise<string[]> => {
-    const response = await fetch(`${FOTOS_API_URL}/`);
-    const data = await response.json();
-    console.log(data);
-    return data.map((photo: any) => `${FOTOS_API_URL}/${photo.name}`);
+    try {
+        const response = await fetch(`${FOTOS_API_URL}/`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log(data);
+        return data.map((photo: any) => `${FOTOS_API_URL}/${photo.name}`);
+    } catch (error) {
+        console.error('Failed to fetch photos:', error);
+        throw new Error('Failed to fetch photos');
+    }
 };
