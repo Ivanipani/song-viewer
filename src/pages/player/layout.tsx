@@ -1,6 +1,6 @@
 import { Outlet, useRouteError, useNavigate } from "react-router";
 import type { ShouldRevalidateFunction } from "react-router";
-import { Paper, Typography, Button, Box } from "@mui/material";
+import { Paper, Title, Text, Button, Box } from "@mantine/core";
 import { fetchAudioCatalog, fetchPhotos } from "../../api/media";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
@@ -47,8 +47,8 @@ export function ErrorBoundary() {
 
   return (
     <Paper
-      sx={{
-        padding: 4,
+      style={{
+        padding: "2rem",
         textAlign: "center",
         minHeight: "100dvh",
         display: "flex",
@@ -57,24 +57,24 @@ export function ErrorBoundary() {
       }}
     >
       <Box>
-        <Typography variant="h4" gutterBottom>
+        <Title order={4} mb="md">
           Unable to Load Music Catalog
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 3 }}>
+        </Title>
+        <Text mb="xl">
           {error instanceof Response
             ? error.statusText
             : error instanceof Error
               ? error.message
               : "Unknown error occurred"}
-        </Typography>
+        </Text>
         <Button
-          variant="contained"
+          variant="filled"
           onClick={() => window.location.reload()}
-          sx={{ mr: 2 }}
+          style={{ marginRight: '1rem' }}
         >
           Retry
         </Button>
-        <Button variant="outlined" onClick={() => navigate("/")}>
+        <Button variant="outline" onClick={() => navigate("/")}>
           Go Home
         </Button>
       </Box>

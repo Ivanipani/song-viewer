@@ -1,0 +1,18 @@
+.slider {
+  width: 90%;
+  margin-inline: 10px;
+}
+
+.slider :global(.mantine-Slider-thumb) {
+  display: none;
+  height: 10px;
+  width: 10px;
+}
+
+.slider:hover {
+  opacity: 0.8;
+}
+
+.slider:hover :global(.mantine-Slider-thumb) {
+  display: block;
+}

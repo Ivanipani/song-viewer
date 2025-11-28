@@ -1,5 +1,6 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Title } from "@mantine/core";
 import { AudioFileRecord } from "../../api/types";
+import classes from './Track.module.css';
 
 interface TrackProps {
   track: AudioFileRecord;
@@ -16,28 +17,10 @@ export const Track = (props: TrackProps) => {
 
     return (
         <Box
-            sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                width: "100%",
-                backgroundColor: isSelected
-                    ? "rgba(25, 118, 210, 0.25)"
-                    : "transparent",
-                transition: "all 0.2s ease-in-out",
-                cursor: "pointer",
-                textDecoration: "none",
-                color: "inherit",
-                "&:hover": {
-                    backgroundColor: "rgba(25, 118, 210, 0.04)",
-                },
-                "&:active": {
-                    transform: "scale(0.995)",
-                },
-            }}
+            className={isSelected ? classes.trackSelected : classes.track}
             onClick={handleClick}
         >
-            <Typography variant="h6">{props.track.title}</Typography>
+            <Title order={6}>{props.track.title}</Title>
         </Box>
     );
 };

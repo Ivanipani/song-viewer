@@ -1,6 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useNavigation } from "react-router";
-import { CssBaseline, Box, ThemeProvider, Typography, Button, LinearProgress } from "@mui/material";
-import { darkTheme } from "./theme";
+import { MantineProvider, Box, Title, Text, Button, Progress } from "@mantine/core";
+import { theme } from "./theme";
 import { useEffect } from "react";
 import { BrowserProvider, useBrowser } from "./contexts/BrowserContext";
 import { PlayerSkeleton } from "./pages/player/PlayerSkeleton";
@@ -30,8 +30,10 @@ function NavigationProgress() {
   const isNavigating = navigation.state === 'loading';
 
   return (
-    <LinearProgress
-      sx={{
+    <Progress
+      value={100}
+      animated
+      style={{
         position: 'fixed',
         top: 0,
         left: 0,
@@ -62,7 +64,7 @@ function AppContent() {
 
   return (
     <Box
-      sx={{
+      style={{
         minHeight: browserInfo.maxScreenHeight,
         maxHeight: browserInfo.maxScreenHeight,
         overflow: "hidden", // Prevent scrolling
@@ -75,10 +77,9 @@ function AppContent() {
 
 export function HydrateFallback() {
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
+    <MantineProvider theme={theme} defaultColorScheme="dark">
       <PlayerSkeleton />
-    </ThemeProvider>
+    </MantineProvider>
   );
 }
 
@@ -86,32 +87,30 @@ export function ErrorBoundary() {
   const error = useRouteError();
 
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
-      <Box sx={{ padding: 4, textAlign: 'center', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <MantineProvider theme={theme} defaultColorScheme="dark">
+      <Box style={{ padding: '2rem', textAlign: 'center', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box>
-          <Typography variant="h3" gutterBottom>Something went wrong</Typography>
-          <Typography variant="body1" sx={{ mt: 2, mb: 3 }}>
+          <Title order={3} mb="md">Something went wrong</Title>
+          <Text style={{ marginTop: '1rem', marginBottom: '1.5rem' }}>
             {error instanceof Error ? error.message : 'Unknown error'}
-          </Typography>
-          <Button variant="contained" onClick={() => window.location.href = '/'}>
+          </Text>
+          <Button variant="filled" onClick={() => window.location.href = '/'}>
             Go Home
           </Button>
         </Box>
       </Box>
-    </ThemeProvider>
+    </MantineProvider>
   );
 }
 
 export default function Root() {
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
+    <MantineProvider theme={theme} defaultColorScheme="dark">
       <NavigationProgress />
       <BrowserProvider>
         <AppContent />
       </BrowserProvider>
-    </ThemeProvider>
+    </MantineProvider>
   );
 }
 

@@ -22,5 +22,6 @@
         src: /etc/nginx/sites-available/song-viewer
         dest: /etc/nginx/sites-enabled/song-viewer
         state: link
+      changed_when: True
       notify: "restart nginx"
 

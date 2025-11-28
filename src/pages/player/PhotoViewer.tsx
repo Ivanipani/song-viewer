@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box } from "@mantine/core";
 
 interface PhotoViewerProps {
   photos: string[];
@@ -7,7 +7,7 @@ interface PhotoViewerProps {
 
 export function PhotoViewer({ photos, currentPhotoIndex }: PhotoViewerProps) {
   return (
-    <Box sx={{ flex: 1.5, padding: 10 }}>
+    <Box style={{ flex: 1.5, padding: "2.5rem" }}>
       {photos.length > 0 && (
         <img
           src={photos[currentPhotoIndex]}

@@ -4,8 +4,6 @@
   vars:
     repo_url: "https://github.com/Ivanipani/song-viewer.git"
     local_repo_path: "/tmp/song-viewer"
-    build_path_full: "/tmp/song-viewer/dist/full"
-    build_path_audio_only: "/tmp/song-viewer/dist/audio-only"
   tasks:
     - name: Clone/pull repository
       ansible.builtin.git:
@@ -20,18 +18,16 @@
       ansible.builtin.command:
         cmd: npm install
         chdir: "{{ local_repo_path }}"
-      when: git_status.changed
 
     - name: Build React app
       ansible.builtin.command:
         cmd: npm run build
         chdir: "{{ local_repo_path }}"
-      when: git_status.changed
 
 - name: Deploy React build to web server
   hosts: webservers
   vars:
-    build_path_src: "/tmp/song-viewer/dist"
+    build_path_src: "/tmp/song-viewer/build/client"
     build_path_dest: "/var/www/song-viewer"
   tasks:
     - name: Create web app directory
