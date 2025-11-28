@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router";
 import { Howl } from "howler";
 import { AudioState, AudioFileRecord } from "./api/types";
 import { PlayControl } from "./PlayControl";
@@ -10,6 +11,8 @@ import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export const Player = () => {
+    const [searchParams] = useSearchParams();
+    const showSlideshow = searchParams.has('aita');
     const { browserInfo } = useBrowser();
     const { catalog, photos, loading } = useMedia();
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -138,14 +141,14 @@ export const Player = () => {
     };
 
     useEffect(() => {
-        if (photos.length === 0) return;
+        if (!showSlideshow || photos.length === 0) return;
 
         const interval = setInterval(() => {
             setCurrentPhotoIndex((prevIndex) => (prevIndex + 1) % photos.length);
         }, 3000); // Change photo every 3 seconds
 
         return () => clearInterval(interval); // Cleanup on unmount
-    }, [photos]); // Run this effect when photos are loaded
+    }, [showSlideshow, photos]); // Run this effect when showSlideshow or photos change
 
     const trackViewer = () => {
         return (
@@ -214,7 +217,7 @@ export const Player = () => {
                         <ArrowBackIcon />
                     </IconButton>
                 </Box>
-                {photoViewer()}
+                {showSlideshow && photoViewer()}
                 <Box sx={{ flex: 0 }}>
                     <PlayControl
                         audioState={audioState}
@@ -294,7 +297,7 @@ export const Player = () => {
             ) : (
                 <>
                     {trackViewer()}
-                    {photoViewer()}
+                        {showSlideshow && photoViewer()}
                 </>
             )}
         </Paper>
