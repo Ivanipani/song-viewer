@@ -76,7 +76,7 @@ export interface SoundCallbacks {
  * @returns A new Howl instance
  */
 export function createSound(url: string, callbacks: SoundCallbacks = {}): Howl {
-  return new Howl({
+  const sound = new Howl({
     src: [url],
     autoplay: false,
     preload: true,
@@ -84,9 +84,9 @@ export function createSound(url: string, callbacks: SoundCallbacks = {}): Howl {
       console.log("onseek", seek);
       callbacks.onSeek?.(seek);
     },
-    onload: function () {
+    onload: () => {
       console.log("onload");
-      callbacks.onLoad?.(this.duration());
+      callbacks.onLoad?.(sound.duration());
     },
     onloaderror: (id, error) => {
       console.log("onloaderror", id, error);
@@ -113,6 +113,7 @@ export function createSound(url: string, callbacks: SoundCallbacks = {}): Howl {
       callbacks.onPause?.();
     },
   });
+  return sound;
 }
 
 /**

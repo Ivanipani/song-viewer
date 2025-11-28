@@ -1,6 +1,6 @@
 import { Box, Slider, Typography, IconButton, Paper } from "@mui/material";
 import { useEffect } from "react";
-import { AudioState } from "./api/types";
+import { AudioState } from "../../api/types";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -10,11 +10,11 @@ import SkipNextIcon from "@mui/icons-material/SkipNext";
 // import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
 
 interface PlayControlProps {
-    audioState: AudioState;
-    setAudioState: any;
-    playNext: () => void;
-    playPrev: () => void;
-    showTrackPlayer: () => void;
+  audioState: AudioState;
+  setAudioState: Function;
+  playNext: () => void;
+  playPrev: () => void;
+  showTrackPlayer: () => void;
 }
 export const PlayControl = (props: PlayControlProps) => {
     const togglePlay = () => {
@@ -62,62 +62,56 @@ export const PlayControl = (props: PlayControlProps) => {
 
     const progressBar = () => {
         return (
-            <Box
-                sx={{
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}
-            >
-                <Typography variant="subtitle2">
-                    {formatTime(props.audioState?.position ?? 0)}
-                </Typography>
-                <Slider
-                    min={0}
-                    max={props.audioState?.duration ?? 100}
-                    step={1}
-                    value={props.audioState?.position ?? 0}
-                    onChange={(_, value) => {
-                        props.setAudioState((prev: AudioState) => ({
-                            ...prev,
-                            position: value,
-                        }));
-                    }}
-                    onChangeCommitted={(_, value) => {
-                        if (!props.audioState.sound) return;
-                        props.audioState.sound.seek(value as number);
-                    }}
-                    sx={{
-                        width: "90%",
-                        height: "5px",
-                        color: "white",
-                        marginInline: "10px",
-                        "& .MuiSlider-thumb": {
-                            display: "none",
-                            height: "10px",
-                            width: "10px",
-                            "&:not(.MuiSlider-active)": {
-                                transition: "left 0.1s ease-in",
-                            },
-                        },
-                        "& .MuiSlider-track": {
-                            transition: "width 0.1s ease-in",
-                        },
-                        "&:hover": {
-                            opacity: 0.8,
-                        },
-                        "&:hover .MuiSlider-thumb": {
-                            display: "block",
-                            boxShadow: "none",
-                        },
-                    }}
-                />
-                <Typography variant="subtitle2">
-                    {formatTime(props.audioState?.duration ?? 0)}
-                </Typography>
-            </Box>
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="subtitle2">
+              {formatTime(props.audioState?.position ?? 0)}
+            </Typography>
+            <Slider
+              min={0}
+              max={props.audioState?.duration ?? 100}
+              step={1}
+              value={props.audioState?.position ?? 0}
+              onChange={(_, value) => {
+                props.setAudioState((prev: AudioState) => ({
+                  ...prev,
+                  position: value,
+                }));
+              }}
+              onChangeCommitted={(_, value) => {
+                if (!props.audioState.sound) return;
+                props.audioState.sound.seek(value as number);
+              }}
+              sx={{
+                width: "90%",
+                height: "5px",
+                color: "white",
+                marginInline: "10px",
+                "& .MuiSlider-thumb": {
+                  display: "none",
+                  height: "10px",
+                  width: "10px",
+                },
+                "&:hover": {
+                  opacity: 0.8,
+                },
+                "&:hover .MuiSlider-thumb": {
+                  display: "block",
+                  boxShadow: "none",
+                },
+              }}
+            />
+            <Typography variant="subtitle2">
+              {formatTime(props.audioState?.duration ?? 0)}
+            </Typography>
+          </Box>
         );
     };
     //   const toggleLoopState = () => {

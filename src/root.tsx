@@ -4,8 +4,6 @@ import { darkTheme } from "./theme";
 import { useEffect } from "react";
 import { BrowserProvider, useBrowser } from "./contexts/BrowserContext";
 import { PlayerSkeleton } from "./pages/player/PlayerSkeleton";
-import { CacheProvider } from "@emotion/react";
-import createCache from "@emotion/cache";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

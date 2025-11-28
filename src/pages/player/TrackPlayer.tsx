@@ -9,7 +9,7 @@ interface TrackPlayerProps {
   setAudioState: React.Dispatch<React.SetStateAction<AudioState>>;
   playNext: () => void;
   playPrev: () => void;
-  maxScreenHeight: number;
+  maxScreenHeight: string;
   showSlideshow: boolean;
   photos: string[];
   currentPhotoIndex: number;
