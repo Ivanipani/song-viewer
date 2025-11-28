@@ -1,17 +1,24 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router";
+import { useSearchParams, useLoaderData } from "react-router";
 import { Howl } from "howler";
-import { AudioState, AudioFileRecord } from "../api/types";
+import { AudioState, AudioFileRecord, AudioCatalog } from "../api/types";
 import { PlayControl } from "../PlayControl";
 import { Track } from "../Track";
-import { Box, CircularProgress, Paper } from "@mui/material";
-import { useMedia } from "../contexts/MediaContext";
+import { Box, Paper } from "@mui/material";
 import { useBrowser } from "../contexts/BrowserContext";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { fetchAudioCatalog, fetchPhotos } from "../api/media";
+
 export async function clientLoader() {
+  const [catalog, photos] = await Promise.all([
+    fetchAudioCatalog(),
+    fetchPhotos()
+  ]);
+
   return {
-    title: "About",
+    catalog,
+    photos,
   };
 }
 
@@ -19,7 +26,7 @@ export default function Player () {
     const [searchParams] = useSearchParams();
     const showSlideshow = searchParams.has('aita');
     const { browserInfo } = useBrowser();
-    const { catalog, photos, loading } = useMedia();
+    const { catalog, photos } = useLoaderData() as { catalog: AudioCatalog; photos: string[] };
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
     // Consolidate audio-related state
@@ -168,30 +175,26 @@ export default function Player () {
                     overflowY: "auto",
                 }}
             >
-                {loading ? (
-                    <CircularProgress size={100} sx={{ alignSelf: "center" }} />
-                ) : (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "flex-start",
-                            alignItems: "flex-start",
-                            flex: 1,
-                            overflowY: "auto",
-                            padding: 2,
-                        }}
-                    >
-                        {catalog?.songs.map((track: AudioFileRecord) => (
-                            <Track
-                                key={track.id}
-                                track={track}
-                                selectedTrack={audioState.selectedTrack}
-                                setSelectedTrack={handleTrackSelect}
-                            />
-                        ))}
-                    </Box>
-                )}
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
+                        flex: 1,
+                        overflowY: "auto",
+                        padding: 2,
+                    }}
+                >
+                    {catalog.songs.map((track: AudioFileRecord) => (
+                        <Track
+                            key={track.id}
+                            track={track}
+                            selectedTrack={audioState.selectedTrack}
+                            setSelectedTrack={handleTrackSelect}
+                        />
+                    ))}
+                </Box>
                 {(!browserInfo.isMobile || !showTrackPlayer) && (
                     <Box sx={{ flex: 0 }}>
                         <PlayControl
