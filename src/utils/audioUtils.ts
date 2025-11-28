@@ -53,14 +53,21 @@ export function getRandomTrack(
  * @param currentTrack - The currently playing track
  * @param catalog - The audio catalog
  * @param shuffle - Whether shuffle mode is enabled
- * @returns The next track, or null if at the end (when not shuffling)
+ * @param loop - Loop mode: "none", "single", "all"
+ * @returns The next track, or null if at the end (when not looping)
  */
 export function getNextTrack(
   currentTrack: AudioFileRecord | null,
   catalog: AudioCatalog,
-  shuffle: boolean = false
+  shuffle: boolean = false,
+  loop: "single" | "all" | "none" = "none",
 ): AudioFileRecord | null {
   if (!currentTrack) return null;
+
+  // If loop is set to "single", return the same track
+  if (loop === "single") {
+    return currentTrack;
+  }
 
   // If shuffle is enabled, return a random track
   if (shuffle) {
@@ -69,6 +76,12 @@ export function getNextTrack(
 
   // Otherwise, return the next track in order
   const nextIndex = getNextTrackIndex(currentTrack.index, catalog.songs.length);
+
+  // If we're at the end and loop is "all", go back to the first track
+  if (nextIndex === null && loop === "all") {
+    return catalog.songs[0];
+  }
+
   return nextIndex !== null ? catalog.songs[nextIndex] : null;
 }
 
@@ -77,14 +90,21 @@ export function getNextTrack(
  * @param currentTrack - The currently playing track
  * @param catalog - The audio catalog
  * @param shuffle - Whether shuffle mode is enabled
- * @returns The previous track, or null if at the beginning (when not shuffling)
+ * @param loop - Loop mode: "none", "single", "all"
+ * @returns The previous track, or null if at the beginning (when not looping)
  */
 export function getPreviousTrack(
   currentTrack: AudioFileRecord | null,
   catalog: AudioCatalog,
-  shuffle: boolean = false
+  shuffle: boolean = false,
+  loop: "single" | "all" | "none" = "none",
 ): AudioFileRecord | null {
   if (!currentTrack) return null;
+
+  // If loop is set to "single", return the same track
+  if (loop === "single") {
+    return currentTrack;
+  }
 
   // If shuffle is enabled, return a random track
   if (shuffle) {

@@ -7,6 +7,8 @@ import {
   IconPlayerPause,
   IconPlayerSkipForward,
   IconArrowsShuffle,
+  IconRepeat,
+  IconRepeatOnce,
 } from "@tabler/icons-react";
 import classes from './PlayControl.module.css';
 
@@ -39,6 +41,22 @@ export const PlayControl = (props: PlayControlProps) => {
       }));
     };
 
+    const toggleLoop = () => {
+      props.setAudioState((prev: AudioState) => {
+        let newLoop: "single" | "all" | "none" = "none";
+        if (prev.loop === "none") {
+          newLoop = "all";
+        } else if (prev.loop === "all") {
+          newLoop = "single";
+        } else {
+          newLoop = "none";
+        }
+        return {
+          ...prev,
+          loop: newLoop,
+        };
+      });
+    };
 
     useEffect(() => {
         const { sound, isPlaying } = props.audioState;
@@ -136,6 +154,20 @@ export const PlayControl = (props: PlayControlProps) => {
     //     }
     //   };
     const controls = () => {
+        const getLoopIcon = () => {
+          if (props.audioState.loop === "single") {
+            return <IconRepeatOnce />;
+          } else if (props.audioState.loop === "all") {
+            return <IconRepeat />;
+          } else {
+            return <IconRepeat />;
+          }
+        };
+
+        const getLoopColor = () => {
+          return props.audioState.loop !== "none" ? "blue" : "gray";
+        };
+
         return (
           <Box
             style={{
@@ -145,6 +177,14 @@ export const PlayControl = (props: PlayControlProps) => {
               width: "100%",
             }}
           >
+            <ActionIcon
+              onClick={toggleLoop}
+              variant="subtle"
+              color={getLoopColor()}
+            >
+              {getLoopIcon()}
+            </ActionIcon>
+
             <Box
               style={{
                 display: "flex",

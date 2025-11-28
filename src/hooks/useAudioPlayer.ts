@@ -94,7 +94,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
             // Check if there's a next track to play
             if (catalog) {
               setAudioState((state) => {
-                const nextTrack = getNextTrack(track, catalog, state.shuffle);
+                const nextTrack = getNextTrack(track, catalog, state.shuffle, state.loop);
                 if (nextTrack) {
                   // Auto-play next track
                   handleTrackSelect(nextTrack);
@@ -135,22 +135,22 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
    */
   const playNext = useCallback(() => {
     if (!catalog) return;
-    const nextTrack = getNextTrack(audioState.selectedTrack, catalog, audioState.shuffle);
+    const nextTrack = getNextTrack(audioState.selectedTrack, catalog, audioState.shuffle, audioState.loop);
     if (nextTrack) {
       handleTrackSelect(nextTrack);
     }
-  }, [audioState.selectedTrack, audioState.shuffle, catalog, handleTrackSelect]);
+  }, [audioState.selectedTrack, audioState.shuffle, audioState.loop, catalog, handleTrackSelect]);
 
   /**
    * Plays the previous track in the catalog
    */
   const playPrev = useCallback(() => {
     if (!catalog) return;
-    const prevTrack = getPreviousTrack(audioState.selectedTrack, catalog, audioState.shuffle);
+    const prevTrack = getPreviousTrack(audioState.selectedTrack, catalog, audioState.shuffle, audioState.loop);
     if (prevTrack) {
       handleTrackSelect(prevTrack);
     }
-  }, [audioState.selectedTrack, audioState.shuffle, catalog, handleTrackSelect]);
+  }, [audioState.selectedTrack, audioState.shuffle, audioState.loop, catalog, handleTrackSelect]);
 
   /**
    * Initialize from URL or default to first track when catalog loads
@@ -187,7 +187,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
       onEnd: () => {
         // Check if there's a next track to play
         setAudioState((state) => {
-          const nextTrack = getNextTrack(trackToLoad, catalog, state.shuffle);
+          const nextTrack = getNextTrack(trackToLoad, catalog, state.shuffle, state.loop);
           if (nextTrack) {
             // Auto-play next track
             handleTrackSelect(nextTrack);
