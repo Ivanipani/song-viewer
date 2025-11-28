@@ -5,9 +5,17 @@ import {
   IconPlayerSkipBack,
   IconPlayerPlay,
   IconPlayerPause,
-  IconPlayerSkipForward
-} from '@tabler/icons-react';
+  IconPlayerSkipForward,
+  IconArrowsShuffle,
+} from "@tabler/icons-react";
 import classes from './PlayControl.module.css';
+
+const formatTime = (seconds: number) => {
+  const roundedSeconds = Math.round(seconds);
+  const minutes = Math.floor(roundedSeconds / 60);
+  const remainingSeconds = Math.round(roundedSeconds % 60);
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
 
 interface PlayControlProps {
   audioState: AudioState;
@@ -23,12 +31,14 @@ export const PlayControl = (props: PlayControlProps) => {
             isPlaying: !prev.isPlaying,
         }));
     };
-    const formatTime = (seconds: number) => {
-        const roundedSeconds = Math.round(seconds);
-        const minutes = Math.floor(roundedSeconds / 60);
-        const remainingSeconds = Math.round(roundedSeconds % 60);
-        return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+
+    const toggleShuffle = () => {
+      props.setAudioState((prev: AudioState) => ({
+        ...prev,
+        shuffle: !prev.shuffle,
+      }));
     };
+
 
     useEffect(() => {
         const { sound, isPlaying } = props.audioState;
@@ -127,21 +137,46 @@ export const PlayControl = (props: PlayControlProps) => {
     //   };
     const controls = () => {
         return (
-            <Box>
-                <ActionIcon onClick={props.playPrev} variant="subtle">
-                    <IconPlayerSkipBack />
-                </ActionIcon>
+          <Box
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <Box
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
+              }}
+            >
+              <ActionIcon onClick={props.playPrev} variant="subtle">
+                <IconPlayerSkipBack />
+              </ActionIcon>
 
-                <ActionIcon
-                    onClick={togglePlay}
-                    variant="subtle"
-                >
-                    {props.audioState?.isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
-                </ActionIcon>
-                <ActionIcon onClick={props.playNext} variant="subtle">
-                    <IconPlayerSkipForward />
-                </ActionIcon>
+              <ActionIcon onClick={togglePlay} variant="subtle">
+                {props.audioState?.isPlaying ? (
+                  <IconPlayerPause />
+                ) : (
+                  <IconPlayerPlay />
+                )}
+              </ActionIcon>
+              <ActionIcon onClick={props.playNext} variant="subtle">
+                <IconPlayerSkipForward />
+              </ActionIcon>
             </Box>
+
+            <ActionIcon
+              onClick={toggleShuffle}
+              variant="subtle"
+              color={props.audioState?.shuffle ? "blue" : "gray"}
+            >
+              <IconArrowsShuffle />
+            </ActionIcon>
+          </Box>
         );
     };
     const nowPlaying = () => {

@@ -93,17 +93,20 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
           onEnd: () => {
             // Check if there's a next track to play
             if (catalog) {
-              const nextTrack = getNextTrack(track, catalog);
-              if (nextTrack) {
-                // Auto-play next track
-                handleTrackSelect(nextTrack);
-              } else {
-                // Last track finished, stop playback
-                setAudioState((state) => ({
-                  ...state,
-                  isPlaying: false,
-                }));
-              }
+              setAudioState((state) => {
+                const nextTrack = getNextTrack(track, catalog, state.shuffle);
+                if (nextTrack) {
+                  // Auto-play next track
+                  handleTrackSelect(nextTrack);
+                  return state;
+                } else {
+                  // Last track finished (or no shuffle options), stop playback
+                  return {
+                    ...state,
+                    isPlaying: false,
+                  };
+                }
+              });
             } else {
               // No catalog, just stop
               setAudioState((state) => ({
@@ -132,22 +135,22 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
    */
   const playNext = useCallback(() => {
     if (!catalog) return;
-    const nextTrack = getNextTrack(audioState.selectedTrack, catalog);
+    const nextTrack = getNextTrack(audioState.selectedTrack, catalog, audioState.shuffle);
     if (nextTrack) {
       handleTrackSelect(nextTrack);
     }
-  }, [audioState.selectedTrack, catalog, handleTrackSelect]);
+  }, [audioState.selectedTrack, audioState.shuffle, catalog, handleTrackSelect]);
 
   /**
    * Plays the previous track in the catalog
    */
   const playPrev = useCallback(() => {
     if (!catalog) return;
-    const prevTrack = getPreviousTrack(audioState.selectedTrack, catalog);
+    const prevTrack = getPreviousTrack(audioState.selectedTrack, catalog, audioState.shuffle);
     if (prevTrack) {
       handleTrackSelect(prevTrack);
     }
-  }, [audioState.selectedTrack, catalog, handleTrackSelect]);
+  }, [audioState.selectedTrack, audioState.shuffle, catalog, handleTrackSelect]);
 
   /**
    * Initialize from URL or default to first track when catalog loads
@@ -183,17 +186,20 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
       },
       onEnd: () => {
         // Check if there's a next track to play
-        const nextTrack = getNextTrack(trackToLoad, catalog);
-        if (nextTrack) {
-          // Auto-play next track
-          handleTrackSelect(nextTrack);
-        } else {
-          // Last track finished, stop playback
-          setAudioState((prev) => ({
-            ...prev,
-            isPlaying: false,
-          }));
-        }
+        setAudioState((state) => {
+          const nextTrack = getNextTrack(trackToLoad, catalog, state.shuffle);
+          if (nextTrack) {
+            // Auto-play next track
+            handleTrackSelect(nextTrack);
+            return state;
+          } else {
+            // Last track finished, stop playback
+            return {
+              ...state,
+              isPlaying: false,
+            };
+          }
+        });
       },
     });
 
