@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router";
 import { AudioState, AudioFileRecord, AudioCatalog } from "../api/types";
 import {
   createSound,
@@ -9,7 +10,7 @@ import {
 } from "../utils/audioUtils";
 
 interface UseAudioPlayerProps {
-  catalog: AudioCatalog;
+  catalog: AudioCatalog | undefined;
 }
 
 interface UseAudioPlayerReturn {
@@ -26,6 +27,7 @@ interface UseAudioPlayerReturn {
  * @returns Audio player state and control functions
  */
 export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayerReturn {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [audioState, setAudioState] = useState<AudioState>({
     isPlaying: false,
     selectedTrack: null,
@@ -70,6 +72,12 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
    */
   const handleTrackSelect = useCallback(
     (track: AudioFileRecord) => {
+      // Update URL with track ID
+      setSearchParams(prev => {
+        prev.set('track', track.id);
+        return prev;
+      }, { replace: false });
+
       setAudioState((prev) => {
         // Clean up previous sound
         cleanupSound(prev.sound);
@@ -100,13 +108,14 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
         };
       });
     },
-    []
+    [setSearchParams]
   );
 
   /**
    * Plays the next track in the catalog
    */
   const playNext = useCallback(() => {
+    if (!catalog) return;
     const nextTrack = getNextTrack(audioState.selectedTrack, catalog);
     if (nextTrack) {
       handleTrackSelect(nextTrack);
@@ -117,6 +126,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
    * Plays the previous track in the catalog
    */
   const playPrev = useCallback(() => {
+    if (!catalog) return;
     const prevTrack = getPreviousTrack(audioState.selectedTrack, catalog);
     if (prevTrack) {
       handleTrackSelect(prevTrack);
@@ -124,39 +134,60 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
   }, [audioState.selectedTrack, catalog, handleTrackSelect]);
 
   /**
-   * Initialize audio state with first track when catalog loads
+   * Initialize from URL or default to first track when catalog loads
    */
   useEffect(() => {
-    if (catalog && catalog.songs.length > 0) {
-      const initialState = createInitialAudioState(catalog, {
-        onLoad: (duration) => {
-          setAudioState((prev) => ({
-            ...prev,
-            duration,
-          }));
-        },
-        onEnd: () => {
-          setAudioState((prev) => ({
-            ...prev,
-            isPlaying: false,
-          }));
-        },
-      });
-
-      setAudioState((prev) => ({
-        ...prev,
-        ...initialState,
-      }));
+    if (!catalog || !catalog.songs || catalog.songs.length === 0) {
+      return;
     }
 
+    // Only initialize once when we don't have a selected track yet
+    if (audioState.selectedTrack) {
+      return;
+    }
+
+    const trackId = searchParams.get('track');
+    let trackToLoad = catalog.songs[0]; // Default to first track
+
+    if (trackId) {
+      // Try to load track from URL
+      const track = catalog.songs.find(s => s.id === trackId);
+      if (track) {
+        trackToLoad = track;
+      }
+    }
+
+    // Initialize with the selected track
+    const initialState = createInitialAudioState({ songs: [trackToLoad] } as AudioCatalog, {
+      onLoad: (duration) => {
+        setAudioState((prev) => ({
+          ...prev,
+          duration,
+        }));
+      },
+      onEnd: () => {
+        setAudioState((prev) => ({
+          ...prev,
+          isPlaying: false,
+        }));
+      },
+    });
+
+    setAudioState((prev) => ({
+      ...prev,
+      ...initialState,
+    }));
+  }, [catalog, searchParams, audioState.selectedTrack]);
+
+  /**
+   * Cleanup on unmount
+   */
+  useEffect(() => {
     return () => {
-      setAudioState((prev) => {
-        cleanupSound(prev.sound);
-        return prev;
-      });
+      cleanupSound(audioState.sound);
       stopPositionTracking();
     };
-  }, [catalog, stopPositionTracking]);
+  }, []);
 
   /**
    * Start/stop position tracking based on playback state

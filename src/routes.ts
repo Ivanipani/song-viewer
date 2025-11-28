@@ -1,7 +1,9 @@
-import { type RouteConfig, route } from "@react-router/dev/routes";
+import { type RouteConfig, route, index } from "@react-router/dev/routes";
 
 export default [
-  // * matches all URLs, the ? makes it optional so it will match / as well
-  route("/", "./pages/player.tsx"),
+  route("/", "./pages/player.tsx", [
+    index("./pages/player/index.tsx"),
+    route("player", "./pages/player/full-player.tsx"),
+  ]),
   route("*?", "catchall.tsx"),
 ] satisfies RouteConfig;

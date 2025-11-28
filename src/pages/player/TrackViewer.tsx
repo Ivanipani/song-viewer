@@ -1,4 +1,5 @@
 import { Box } from "@mui/material";
+import { useNavigate } from "react-router";
 import { AudioState, AudioFileRecord, AudioCatalog } from "../../api/types";
 import { Track } from "./Track";
 import { PlayControl } from "./PlayControl";
@@ -26,6 +27,16 @@ export function TrackViewer({
   showTrackPlayer,
   onShowTrackPlayer,
 }: TrackViewerProps) {
+  const navigate = useNavigate();
+
+  const handleShowPlayer = () => {
+    if (isMobile) {
+      navigate('/player');
+    } else {
+      onShowTrackPlayer();
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -64,7 +75,7 @@ export function TrackViewer({
             setAudioState={setAudioState}
             playNext={playNext}
             playPrev={playPrev}
-            showTrackPlayer={onShowTrackPlayer}
+            showTrackPlayer={handleShowPlayer}
           />
         </Box>
       )}

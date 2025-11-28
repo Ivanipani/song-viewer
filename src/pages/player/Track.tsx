@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
-import { AudioFileRecord } from "./api/types";
+import { useSearchParams } from "react-router";
+import { AudioFileRecord } from "../../api/types";
 
 interface TrackProps {
     track: AudioFileRecord;
@@ -8,6 +9,13 @@ interface TrackProps {
 }
 
 export const Track = (props: TrackProps) => {
+    const [searchParams] = useSearchParams();
+    const isSelected = props?.selectedTrack?.id === props.track.id;
+
+    const handleClick = () => {
+        props.setSelectedTrack(props.track);
+    };
+
     return (
         <Box
             sx={{
@@ -15,12 +23,13 @@ export const Track = (props: TrackProps) => {
                 flexDirection: "row",
                 alignItems: "center",
                 width: "100%",
-                backgroundColor:
-                    props?.selectedTrack?.id === props.track.id
-                        ? "rgba(25, 118, 210, 0.25)"
-                        : "transparent",
+                backgroundColor: isSelected
+                    ? "rgba(25, 118, 210, 0.25)"
+                    : "transparent",
                 transition: "all 0.2s ease-in-out",
                 cursor: "pointer",
+                textDecoration: "none",
+                color: "inherit",
                 "&:hover": {
                     backgroundColor: "rgba(25, 118, 210, 0.04)",
                 },
@@ -28,9 +37,7 @@ export const Track = (props: TrackProps) => {
                     transform: "scale(0.995)",
                 },
             }}
-            onClick={() => {
-                props.setSelectedTrack(props.track);
-            }}
+            onClick={handleClick}
         >
             <Typography variant="h6">{props.track.title}</Typography>
         </Box>
