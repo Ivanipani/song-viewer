@@ -143,14 +143,53 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
 
   /**
    * Plays the previous track in the catalog
+   * If current position is less than 3 seconds, restart the current song instead
+   * If on the first song and no loop mode, restart the first song
    */
   const playPrev = useCallback(() => {
     if (!catalog) return;
-    const prevTrack = getPreviousTrack(audioState.selectedTrack, catalog, audioState.shuffle, audioState.loop);
-    if (prevTrack) {
-      handleTrackSelect(prevTrack);
+
+    // Check if we're more than 3 seconds into the current track
+    const currentPosition = audioState.position || 0;
+    if (currentPosition > 3) {
+      // Restart the current track
+      if (audioState.sound && audioState.selectedTrack) {
+        audioState.sound.seek(0);
+        setAudioState((prev) => ({
+          ...prev,
+          position: 0,
+        }));
+      }
+    } else {
+      // Go to previous track
+      const prevTrack = getPreviousTrack(
+        audioState.selectedTrack,
+        catalog,
+        audioState.shuffle,
+        audioState.loop,
+      );
+      if (prevTrack) {
+        handleTrackSelect(prevTrack);
+      } else {
+        // No previous track available (first song without loop), restart current track
+        if (audioState.sound && audioState.selectedTrack) {
+          audioState.sound.seek(0);
+          setAudioState((prev) => ({
+            ...prev,
+            position: 0,
+          }));
+        }
+      }
     }
-  }, [audioState.selectedTrack, audioState.shuffle, audioState.loop, catalog, handleTrackSelect]);
+  }, [
+    audioState.selectedTrack,
+    audioState.shuffle,
+    audioState.loop,
+    audioState.position,
+    audioState.sound,
+    catalog,
+    handleTrackSelect,
+  ]);
 
   /**
    * Initialize from URL or default to first track when catalog loads
