@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useMatches } from "react-router";
-import { Paper } from "@mui/material";
+import { Paper } from "@mantine/core";
 import { AudioCatalog } from "../../api/types";
 import { TrackViewer } from "./TrackViewer";
 import { PhotoViewer } from "./PhotoViewer";
@@ -43,8 +43,8 @@ export default function PlayerIndex() {
 
   return (
     <Paper
-      elevation={3}
-      sx={{
+      shadow="md"
+      style={{
         display: "flex",
         flexDirection: "row",
         maxHeight: "100dvh",

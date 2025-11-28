@@ -1,0 +1,27 @@
+.track {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  background-color: transparent;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.track:hover {
+  background-color: rgba(25, 118, 210, 0.04);
+}
+
+.track:active {
+  transform: scale(0.995);
+}
+
+.trackSelected {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  background-color: rgba(25, 118, 210, 0.25);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}

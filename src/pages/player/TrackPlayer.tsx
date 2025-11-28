@@ -1,5 +1,5 @@
-import { Box, IconButton } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Box, ActionIcon } from "@mantine/core";
+import { IconArrowLeft } from "@tabler/icons-react";
 import { AudioState } from "../../api/types";
 import { PlayControl } from "./PlayControl";
 import { PhotoViewer } from "./PhotoViewer";
@@ -29,22 +29,22 @@ export function TrackPlayer({
 }: TrackPlayerProps) {
   return (
     <Box
-      sx={{
+      style={{
         maxHeight: maxScreenHeight,
         display: "flex",
         flexDirection: "column",
         flex: 1,
       }}
     >
-      <Box sx={{ flex: 0 }}>
-        <IconButton sx={{}} onClick={onBack}>
-          <ArrowBackIcon />
-        </IconButton>
+      <Box style={{ flex: 0 }}>
+        <ActionIcon variant="subtle" onClick={onBack}>
+          <IconArrowLeft />
+        </ActionIcon>
       </Box>
       {showSlideshow && (
         <PhotoViewer photos={photos} currentPhotoIndex={currentPhotoIndex} />
       )}
-      <Box sx={{ flex: 0 }}>
+      <Box style={{ flex: 0 }}>
         <PlayControl
           audioState={audioState}
           setAudioState={setAudioState}

@@ -1,10 +1,10 @@
-import { Box, Paper, Skeleton } from '@mui/material';
+import { Box, Paper, Skeleton } from '@mantine/core';
 
 export function PlayerSkeleton() {
   return (
     <Paper
-      elevation={3}
-      sx={{
+      shadow="md"
+      style={{
         display: 'flex',
         flexDirection: 'row',
         maxHeight: '100dvh',
@@ -13,37 +13,36 @@ export function PlayerSkeleton() {
     >
       {/* Track list skeleton */}
       <Box
-        sx={{
+        style={{
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
           maxWidth: '30%',
-          padding: 2,
+          padding: '1rem',
         }}
       >
         {[...Array(8)].map((_, i) => (
           <Skeleton
             key={i}
-            variant="rectangular"
             height={60}
-            sx={{ mb: 1, borderRadius: 1 }}
+            style={{ marginBottom: '0.5rem', borderRadius: '4px' }}
           />
         ))}
         {/* Control skeleton */}
-        <Box sx={{ mt: 'auto' }}>
-          <Skeleton variant="text" width="60%" height={30} sx={{ mb: 1 }} />
-          <Skeleton variant="rectangular" height={8} sx={{ mb: 2 }} />
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+        <Box style={{ marginTop: 'auto' }}>
+          <Skeleton width="60%" height={30} style={{ marginBottom: '0.5rem' }} />
+          <Skeleton height={8} style={{ marginBottom: '1rem' }} />
+          <Box style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
             {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} variant="circular" width={40} height={40} />
+              <Skeleton key={i} circle height={40} />
             ))}
           </Box>
         </Box>
       </Box>
 
       {/* Photo viewer skeleton */}
-      <Box sx={{ flex: 1.5, padding: 10 }}>
-        <Skeleton variant="rectangular" height="100%" />
+      <Box style={{ flex: 1.5, padding: '2.5rem' }}>
+        <Skeleton height="100%" />
       </Box>
     </Paper>
   );

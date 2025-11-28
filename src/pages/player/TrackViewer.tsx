@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box } from "@mantine/core";
 import { useNavigate } from "react-router";
 import { AudioState, AudioFileRecord, AudioCatalog } from "../../api/types";
 import { Track } from "./Track";
@@ -39,7 +39,7 @@ export function TrackViewer({
 
   return (
     <Box
-      sx={{
+      style={{
         display: "flex",
         flexDirection: "column",
         flex: 1,
@@ -49,14 +49,14 @@ export function TrackViewer({
       }}
     >
       <Box
-        sx={{
+        style={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
           alignItems: "flex-start",
           flex: 1,
           overflowY: "auto",
-          padding: 2,
+          padding: "1rem",
         }}
       >
         {catalog.songs.map((track: AudioFileRecord) => (
@@ -69,7 +69,7 @@ export function TrackViewer({
         ))}
       </Box>
       {(!isMobile || !showTrackPlayer) && (
-        <Box sx={{ flex: 0 }}>
+        <Box style={{ flex: 0 }}>
           <PlayControl
             audioState={audioState}
             setAudioState={setAudioState}

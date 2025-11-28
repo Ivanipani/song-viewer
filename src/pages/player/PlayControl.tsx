@@ -1,13 +1,13 @@
-import { Box, Slider, Typography, IconButton, Paper } from "@mui/material";
+import { Box, Slider, Text, Title, ActionIcon, Paper } from "@mantine/core";
 import { useEffect } from "react";
 import { AudioState } from "../../api/types";
-import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import PauseIcon from "@mui/icons-material/Pause";
-import SkipNextIcon from "@mui/icons-material/SkipNext";
-// import LoopIcon from "@mui/icons-material/Loop";
-// import RepeatOneIcon from "@mui/icons-material/RepeatOne";
-// import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
+import {
+  IconPlayerSkipBack,
+  IconPlayerPlay,
+  IconPlayerPause,
+  IconPlayerSkipForward
+} from '@tabler/icons-react';
+import classes from './PlayControl.module.css';
 
 interface PlayControlProps {
   audioState: AudioState;
@@ -63,7 +63,7 @@ export const PlayControl = (props: PlayControlProps) => {
     const progressBar = () => {
         return (
           <Box
-            sx={{
+            style={{
               width: "100%",
               display: "flex",
               flexDirection: "row",
@@ -71,46 +71,30 @@ export const PlayControl = (props: PlayControlProps) => {
               alignItems: "center",
             }}
           >
-            <Typography variant="subtitle2">
+            <Text size="sm">
               {formatTime(props.audioState?.position ?? 0)}
-            </Typography>
+            </Text>
             <Slider
               min={0}
               max={props.audioState?.duration ?? 100}
               step={1}
               value={props.audioState?.position ?? 0}
-              onChange={(_, value) => {
+              onChange={(value) => {
                 props.setAudioState((prev: AudioState) => ({
                   ...prev,
                   position: value,
                 }));
               }}
-              onChangeCommitted={(_, value) => {
+              onChangeEnd={(value) => {
                 if (!props.audioState.sound) return;
                 props.audioState.sound.seek(value as number);
               }}
-              sx={{
-                width: "90%",
-                height: "5px",
-                color: "white",
-                marginInline: "10px",
-                "& .MuiSlider-thumb": {
-                  display: "none",
-                  height: "10px",
-                  width: "10px",
-                },
-                "&:hover": {
-                  opacity: 0.8,
-                },
-                "&:hover .MuiSlider-thumb": {
-                  display: "block",
-                  boxShadow: "none",
-                },
-              }}
+              className={classes.slider}
+              color="white"
             />
-            <Typography variant="subtitle2">
+            <Text size="sm">
               {formatTime(props.audioState?.duration ?? 0)}
-            </Typography>
+            </Text>
           </Box>
         );
     };
@@ -147,57 +131,51 @@ export const PlayControl = (props: PlayControlProps) => {
     const controls = () => {
         return (
             <Box>
-                {/* <IconButton onClick={toggleShuffle}>
-          <ShuffleIcon
-            sx={{ color: props.audioState?.shuffle ? "green" : "white" }}
-          />
-        </IconButton> */}
-                <IconButton onClick={props.playPrev}>
-                    <SkipPreviousIcon />
-                </IconButton>
+                <ActionIcon onClick={props.playPrev} variant="subtle">
+                    <IconPlayerSkipBack />
+                </ActionIcon>
 
-                <IconButton
+                <ActionIcon
                     onClick={togglePlay}
-                    sx={{
+                    variant="subtle"
+                    style={{
                         color: "white",
                         padding: "8px 16px",
-                        border: "none",
-                        borderRadius: "4px",
                     }}
                 >
-                    {props.audioState?.isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-                </IconButton>
-                <IconButton onClick={props.playNext}>
-                    <SkipNextIcon />
-                </IconButton>
-                {/* <IconButton onClick={toggleLoopState}>{getLoopIcon()}</IconButton> */}
+                    {props.audioState?.isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
+                </ActionIcon>
+                <ActionIcon onClick={props.playNext} variant="subtle">
+                    <IconPlayerSkipForward />
+                </ActionIcon>
             </Box>
         );
     };
     const nowPlaying = () => {
         return (
-            <Box sx={{ alignSelf: "flex-start" }}>
-                <Typography variant="h6">
+            <Box style={{ alignSelf: "flex-start" }}>
+                <Title order={6}>
                     {props.audioState?.selectedTrack?.title}
-                </Typography>
-                <Typography variant="subtitle2">
+                </Title>
+                <Text size="sm">
                     {props.audioState?.selectedTrack?.artist}
-                </Typography>
+                </Text>
             </Box>
         );
     };
 
     return (
         <Paper
-            sx={{
+            shadow="md"
+            style={{
                 width: "100%",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "flex-end",
                 flex: 1,
-                paddingInline: 2,
-                paddingBlock: 1,
+                paddingInline: "1rem",
+                paddingBlock: "0.5rem",
             }}
             onClick={props.showTrackPlayer}
         >
