@@ -21,14 +21,15 @@ ping:
 [script("zsh")]
 [working-directory: 'playbook']
 deploy-task:
-    TASK=$(ansible-playbook --list-tasks deploy-prod.yml | grep 'TAGS:' | grep -vE "play\s#\d" | awk '{sub(/[[:space:]]*TAGS:.*/, ""); sub(/^[[:space:]]+/, ""); print}' | fzf)
+    PLAYBOOK=$(ls deploy*.yml | fzf)
+    TASK=$(ansible-playbook --list-tasks $PLAYBOOK | grep 'TAGS:' | grep -vE "play\s#\d" | awk '{sub(/[[:space:]]*TAGS:.*/, ""); sub(/^[[:space:]]+/, ""); print}' | fzf)
 
     if [ -z "$TASK" ]; then
         echo "No task selected. Exiting."
         exit 1
     fi
     echo "Starting from task: $TASK"
-    ansible-playbook deploy-prod.yml --start-at-task "$TASK"
+    ansible-playbook $PLAYBOOK --start-at-task "$TASK"
 
 # Run a single playbook
 [script("zsh")]

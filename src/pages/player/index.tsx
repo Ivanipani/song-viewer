@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useMatches } from "react-router";
-import { AppShell, Box, Anchor, ScrollArea } from "@mantine/core";
+import {
+  AppShell,
+  Box,
+  Anchor,
+  ScrollArea,
+  Burger,
+  Text,
+  Group,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { AudioCatalog, AudioFileRecord } from "../../api/types";
 import { Track } from "./Track";
 import { PlayControl } from "./PlayControl";
@@ -11,6 +20,7 @@ export default function PlayerIndex() {
   const matches = useMatches();
   const [searchParams] = useSearchParams();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [opened, { toggle }] = useDisclosure();
 
   // Find parent route data - check all matches for data
   const parentMatch = matches.find(
@@ -43,14 +53,32 @@ export default function PlayerIndex() {
   return (
     <AppShell
       navbar={{
-        width: 300,
+        width: { base: 280, sm: 300 },
         breakpoint: "sm",
+        collapsed: { mobile: !opened },
+      }}
+      header={{
+        height: { base: 60, sm: 0 },
       }}
       footer={{
-        height: 60,
+        height: 40,
       }}
       padding={0}
     >
+      <AppShell.Header hiddenFrom="sm">
+        <Box
+          style={{
+            display: "flex",
+            alignItems: "center",
+            height: "100%",
+            padding: "0 1rem",
+          }}
+        >
+          <Burger opened={opened} onClick={toggle} size="sm" />
+          <Text ml="md">Song Viewer</Text>
+        </Box>
+      </AppShell.Header>
+
       <AppShell.Navbar>
         <AppShell.Section grow component={ScrollArea}>
           <Box p="md">
@@ -97,13 +125,7 @@ export default function PlayerIndex() {
       </AppShell.Main>
 
       <AppShell.Footer p="md">
-        <Box
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-          }}
-        >
+        <Group justify="flex-end">
           {/* <Text size="sm" c="dimmed"> */}
           {/*   A simple music player with photo slideshow support */}
           {/* </Text> */}
@@ -114,7 +136,7 @@ export default function PlayerIndex() {
           >
             View on GitHub
           </Anchor>
-        </Box>
+        </Group>
       </AppShell.Footer>
     </AppShell>
   );

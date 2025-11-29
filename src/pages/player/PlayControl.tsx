@@ -1,4 +1,4 @@
-import { Box, Slider, Text, Title, ActionIcon } from "@mantine/core";
+import { Box, Slider, Text, Group, Title, ActionIcon } from "@mantine/core";
 import { useEffect } from "react";
 import { AudioState } from "../../api/types";
 import {
@@ -123,36 +123,6 @@ export const PlayControl = (props: PlayControlProps) => {
           </Box>
         );
     };
-    //   const toggleLoopState = () => {
-    //     let newLoopState: "single" | "all" | "none" = "none";
-    //     if (props.audioState.loop === "single") {
-    //       newLoopState = "all";
-    //     } else if (props.audioState.loop === "all") {
-    //       newLoopState = "none";
-    //     } else {
-    //       newLoopState = "single";
-    //     }
-    //     props.setAudioState((prev: AudioState) => ({
-    //       ...prev,
-    //       loop: newLoopState,
-    //     }));
-    //   };
-
-    //   const toggleShuffle = () => {
-    //     props.setAudioState((prev: AudioState) => ({
-    //       ...prev,
-    //       shuffle: !prev.shuffle,
-    //     }));
-    //   };
-    //   const getLoopIcon = () => {
-    //     if (props.audioState.loop === "single") {
-    //       return <LoopIcon />;
-    //     } else if (props.audioState.loop === "all") {
-    //       return <RepeatOneIcon />;
-    //     } else {
-    //       return <DoNotDisturbIcon />;
-    //     }
-    //   };
     const controls = () => {
         const getLoopIcon = () => {
           if (props.audioState.loop === "single") {
@@ -169,18 +139,13 @@ export const PlayControl = (props: PlayControlProps) => {
         };
 
         return (
-          <Box
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-            }}
-          >
+          <Group justify="space-between">
             <ActionIcon
               onClick={toggleLoop}
               variant="subtle"
               color={getLoopColor()}
+              size="lg"
+              style={{ margin: "0 4px" }}
             >
               {getLoopIcon()}
             </ActionIcon>
@@ -193,18 +158,33 @@ export const PlayControl = (props: PlayControlProps) => {
                 flex: 1,
               }}
             >
-              <ActionIcon onClick={props.playPrev} variant="subtle">
+              <ActionIcon
+                onClick={props.playPrev}
+                variant="subtle"
+                size="lg"
+                style={{ margin: "0 4px" }}
+              >
                 <IconPlayerSkipBack />
               </ActionIcon>
 
-              <ActionIcon onClick={togglePlay} variant="subtle">
+              <ActionIcon
+                onClick={togglePlay}
+                variant="subtle"
+                size="lg"
+                style={{ margin: "0 4px" }}
+              >
                 {props.audioState?.isPlaying ? (
                   <IconPlayerPause />
                 ) : (
                   <IconPlayerPlay />
                 )}
               </ActionIcon>
-              <ActionIcon onClick={props.playNext} variant="subtle">
+              <ActionIcon
+                onClick={props.playNext}
+                variant="subtle"
+                size="lg"
+                style={{ margin: "0 4px" }}
+              >
                 <IconPlayerSkipForward />
               </ActionIcon>
             </Box>
@@ -213,10 +193,12 @@ export const PlayControl = (props: PlayControlProps) => {
               onClick={toggleShuffle}
               variant="subtle"
               color={props.audioState?.shuffle ? "blue" : "gray"}
+              size="lg"
+              style={{ margin: "0 4px" }}
             >
               <IconArrowsShuffle />
             </ActionIcon>
-          </Box>
+          </Group>
         );
     };
     const nowPlaying = () => {
