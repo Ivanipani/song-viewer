@@ -19,23 +19,18 @@
  * - fetchPhotos(): GET {FOTOS_API_URL}/
  *   Returns: Photo URLs array
  *
- * Child routes: PlayerIndex (pages/player/index.tsx)
+ * Child routes: PlayerIndex (pages/player/index.tsx), TrackLayout (pages/player/track/layout.tsx)
  */
-import type { Route } from "./+types/product";
-import { useState, useEffect } from "react";
 import { Outlet, useRouteError, useNavigate } from "react-router";
 import type { ShouldRevalidateFunction } from "react-router";
 import { Paper, Title, Text, Button, Box } from "@mantine/core";
-import { useSearchParams } from "react-router";
 import { useDisclosure } from "@mantine/hooks";
 import { fetchAudioCatalog, fetchPhotos } from "../../api/media";
 import { AppShell, Anchor, ScrollArea, Burger, Group } from "@mantine/core";
 import { useAudioPlayer } from "../../hooks/useAudioPlayer";
-import { AudioCatalog, AudioFileRecord } from "../../api/types";
+import { AudioFileRecord } from "../../api/types";
 import { Track } from "./Track";
 import { PlayControl } from "./PlayControl";
-import { PhotoViewer } from "./PhotoViewer";
-import ContentArea from "./ContentArea";
 
 /**
  * Revalidation strategy for the player route.
@@ -152,7 +147,7 @@ export function ErrorBoundary() {
  *
  * Child routes: PlayerIndex receives catalog and photos via useMatches/useLoaderData
  */
-export default function PlayerLayout({ loaderData }: Route.ComponentProps) {
+export default function PlayerLayout({ loaderData }: any) {
   const { catalog } = loaderData;
   const [opened, { toggle }] = useDisclosure();
   const { audioState, setAudioState, handleTrackSelect, playNext, playPrev } =
@@ -200,6 +195,7 @@ export default function PlayerLayout({ loaderData }: Route.ComponentProps) {
                 track={track}
                 selectedTrack={audioState.selectedTrack}
                 setSelectedTrack={handleTrackSelect}
+                onCloseMobile={toggle}
               />
             ))}
           </Box>
