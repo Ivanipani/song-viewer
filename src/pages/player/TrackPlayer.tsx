@@ -9,7 +9,6 @@ interface TrackPlayerProps {
   setAudioState: React.Dispatch<React.SetStateAction<AudioState>>;
   playNext: () => void;
   playPrev: () => void;
-  maxScreenHeight: string;
   showSlideshow: boolean;
   photos: string[];
   currentPhotoIndex: number;
@@ -21,7 +20,6 @@ export function TrackPlayer({
   setAudioState,
   playNext,
   playPrev,
-  maxScreenHeight,
   showSlideshow,
   photos,
   currentPhotoIndex,
@@ -30,7 +28,7 @@ export function TrackPlayer({
   return (
     <Box
       style={{
-        maxHeight: maxScreenHeight,
+        maxHeight: '100dvh',
         display: "flex",
         flexDirection: "column",
         flex: 1,

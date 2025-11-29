@@ -1,8 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useNavigation } from "react-router";
 import { MantineProvider, Box, Title, Text, Button, Progress } from "@mantine/core";
 import { theme } from "./theme";
-import { useEffect } from "react";
-import { BrowserProvider, useBrowser } from "./contexts/BrowserContext";
 import { PlayerSkeleton } from "./pages/player/PlayerSkeleton";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -48,26 +46,12 @@ function NavigationProgress() {
 }
 
 function AppContent() {
-  const { browserInfo } = useBrowser();
-
-  useEffect(() => {
-    const setVh = () => {
-      document.documentElement.style.setProperty(
-        "--vh",
-        `${window.innerHeight * 0.01}px`,
-      );
-    };
-    setVh();
-    window.addEventListener("resize", setVh);
-    return () => window.removeEventListener("resize", setVh);
-  }, []);
-
   return (
     <Box
       style={{
-        minHeight: browserInfo.maxScreenHeight,
-        maxHeight: browserInfo.maxScreenHeight,
-        overflow: "hidden", // Prevent scrolling
+        minHeight: '100dvh',
+        maxHeight: '100dvh',
+        overflow: "hidden",
       }}
     >
       <Outlet />
@@ -107,9 +91,7 @@ export default function Root() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">
       <NavigationProgress />
-      <BrowserProvider>
-        <AppContent />
-      </BrowserProvider>
+      <AppContent />
     </MantineProvider>
   );
 }
