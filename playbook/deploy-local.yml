@@ -1,60 +1,21 @@
 ---
-- name: Build React app
-  hosts: localhost
-  tasks:
-    - name: Find all source files
-      ansible.builtin.find:
-        paths: "../src"
-        recurse: true
-        file_type: file
-      register: src_files
-
-    - name: Check build directory
-      ansible.builtin.stat:
-        path: "../build"
-      register: build_stat
-
-    - name: Build React app
-      ansible.builtin.command:
-        cmd: npm run build-dev
-        chdir: ../
-      when: >
-        not build_stat.stat.exists or
-        (src_files.files | map(attribute='mtime') | max) > build_stat.stat.mtime
-
-- name: Deploy catalog
-  hosts: localhost
-  vars:
-    songstore_path: "/Users/ivanperdomo/song-viewer/canciones"
-    catalog_file_path_src: "{{ '../catalog-manager/catalog/catalog.yml' | realpath }}"
-  tasks:
-    - name: Copy catalog.yml to server
-      ansible.builtin.copy:
-        src: "{{ catalog_file_path_src }}"
-        dest: "{{ songstore_path }}/catalog.yml"
-
 - name: Install and configure NGINX
   hosts: localhost
   vars:
-    build_path_dest: "{{ '../dist' | realpath }}"
-    audio_path_dest: "/Users/ivanperdomo/song-viewer/canciones"
+    build_path_dest: "{{ '../build/client' | realpath }}"
+    media_path_dest: "/Users/ivanperdomo/song-viewer/canciones"
     photos_path_dest: "/Users/ivanperdomo/song-viewer/fotos"
+    track_path_dest: "{{ '../catalog-manager/catalog' | realpath }}"
     server_port: 5001
     domain: "localhost"
   tasks:
-    - name: Install NGINX
-      ansible.builtin.package:
-        name: nginx
-        state: present
-      notify:
-        - Restart NGINX
     - name: Configure NGINX site
       ansible.builtin.template:
         src: nginx-react-app.conf.j2
         dest: /opt/homebrew/etc/nginx/servers/song-viewer
         mode: '0644'
       notify: Restart NGINX
-
+      changed_when: True
   handlers:
     - name: Restart NGINX
       ansible.builtin.command:

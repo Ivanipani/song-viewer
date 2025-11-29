@@ -37,7 +37,14 @@ import {
   useNavigate,
   useLocation,
 } from "react-router";
-import { Box, Title, Text, Paper, SegmentedControl } from "@mantine/core";
+import {
+  Box,
+  Title,
+  Text,
+  Paper,
+  SegmentedControl,
+  ScrollArea,
+} from "@mantine/core";
 import { AudioCatalog } from "../../../api/types";
 
 export default function TrackLayout({}: Route.ComponentProps) {

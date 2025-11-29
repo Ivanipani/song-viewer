@@ -132,6 +132,7 @@ export interface SoundCallbacks {
 
 /**
  * Creates a new Howl sound instance with the specified callbacks
+ * The Howl constructor makes a GET request to MEDIA_API_URL/<filename> to download the sound file.
  * @param url - The URL of the audio file
  * @param callbacks - Event callbacks for the sound
  * @returns A new Howl instance

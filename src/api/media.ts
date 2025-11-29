@@ -1,6 +1,6 @@
 import yaml from "js-yaml";
 import { AudioCatalog, ExtendedMetadata, TrackNotes } from "./types";
-import { CANCIONES_API_URL, FOTOS_API_URL } from "./constants";
+import { MEDIA_API_URL, TRACKS_API_URL, FOTOS_API_URL } from "./constants";
 
 /**
  * Fetches a list of songs from the API endpoint
@@ -14,14 +14,14 @@ import { CANCIONES_API_URL, FOTOS_API_URL } from "./constants";
  */
 export const fetchAudioCatalog = async (): Promise<AudioCatalog> => {
     try {
-        const response = await fetch(`${CANCIONES_API_URL}/catalog.yml`);
+        const response = await fetch(`${TRACKS_API_URL}/catalog.yml`);
         if (!response.ok) {
             throw new Error("Failed to fetch song catalog")
         }
         const data = await response.text();
         const catalog = yaml.load(data) as AudioCatalog;
         catalog.songs.forEach((song, idx) => {
-            song.url = `${CANCIONES_API_URL}/${song.filename}`;
+            song.url = `${MEDIA_API_URL}/${song.filename}`;
             song.index = idx;
         });
         return catalog;
@@ -59,7 +59,9 @@ export const fetchPhotos = async (): Promise<string[]> => {
  */
 export const fetchTrackNotes = async (trackId: string): Promise<TrackNotes | null> => {
     try {
-        const response = await fetch(`${CANCIONES_API_URL}/tracks/${trackId}/notes.md`);
+        const response = await fetch(
+          `${TRACKS_API_URL}/tracks/${trackId}/notes.md`,
+        );
         if (!response.ok) {
             if (response.status === 404) {
                 return null;
@@ -88,7 +90,9 @@ export const fetchTrackNotes = async (trackId: string): Promise<TrackNotes | nul
  */
 export const fetchTrackMetadata = async (trackId: string): Promise<ExtendedMetadata | null> => {
     try {
-        const response = await fetch(`${CANCIONES_API_URL}/tracks/${trackId}/metadata.yml`);
+        const response = await fetch(
+          `${TRACKS_API_URL}/tracks/${trackId}/metadata.yml`,
+        );
         if (!response.ok) {
             if (response.status === 404) {
                 return null;
@@ -99,7 +103,7 @@ export const fetchTrackMetadata = async (trackId: string): Promise<ExtendedMetad
         const metadata = yaml.load(text) as ExtendedMetadata;
         return metadata;
     } catch (error) {
-        console.error(`Error fetching metadata for track ${trackId}:`, error);
+        console.warn(`Error fetching metadata for track ${trackId}:`, error);
         return null;
     }
 };

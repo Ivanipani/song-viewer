@@ -1,3 +1,5 @@
 export const API_URL = import.meta.env.VITE_API_ENDPOINT;
-export const CANCIONES_API_URL = `${API_URL}/canciones`;
+
+export const MEDIA_API_URL = `${API_URL}/media`;
+export const TRACKS_API_URL = `${API_URL}/tracks`;
 export const FOTOS_API_URL = `${API_URL}/fotos`;
