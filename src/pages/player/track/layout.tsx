@@ -7,8 +7,8 @@
  * TrackLayout
  *   ├─ Metadata Header
  *   │   ├─ Title (track title)
- *   │   └─ Text (artist name)
- *   ├─ Navigation Tabs (Notes | Chords | Tracks)
+ *   │   ├─ Text (artist name)
+ *   │   └─ SegmentedControl (Notes | Chords | Tracks)
  *   └─ Outlet (renders nested view: notes/chords/tracks)
  *
  * Responsibilities:
@@ -29,23 +29,55 @@
  *
  * No network calls - operates on parent route's data.
  */
-import { useParams, useMatches, Outlet, NavLink } from "react-router";
-import { Box, Title, Text, Group, Paper } from "@mantine/core";
+import {
+  useParams,
+  useMatches,
+  Outlet,
+  useNavigate,
+  useLocation,
+} from "react-router";
+import { Box, Title, Text, Paper, SegmentedControl } from "@mantine/core";
 import { AudioCatalog } from "../../../api/types";
 
-export default function TrackLayout() {
+export async function clientLoader() {}
+
+export default function TrackLayout({ }: any) {
   const { trackId } = useParams();
   const matches = useMatches();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Get catalog from parent route
   const parentMatch = matches.find(
-    (match) => match.data && typeof match.data === "object" && "catalog" in match.data
+    (match) =>
+      match.data && typeof match.data === "object" && "catalog" in match.data,
   );
-  const parentData = parentMatch?.data as { catalog?: AudioCatalog } | undefined;
+  const parentData = parentMatch?.data as
+    | { catalog?: AudioCatalog }
+    | undefined;
   const catalog = parentData?.catalog;
 
   // Find the selected track
   const track = catalog?.songs.find((song) => song.id === trackId);
+
+  // Determine current view from pathname
+  const getCurrentView = () => {
+    const path = location.pathname;
+    if (path.endsWith("/chords")) return "chords";
+    if (path.endsWith("/tracks")) return "tracks";
+    return "notes"; // Default/index route
+  };
+
+  const currentView = getCurrentView();
+
+  // Handle view change
+  const handleViewChange = (value: string) => {
+    if (value === "notes") {
+      navigate(`/track/${trackId}`);
+    } else {
+      navigate(`/track/${trackId}/${value}`);
+    }
+  };
 
   // Handle track not found
   if (!track) {
@@ -87,49 +119,17 @@ export default function TrackLayout() {
           {track.artist}
         </Text>
 
-        {/* View Toggle Buttons */}
-        <Group mt="md" gap="xs">
-          <NavLink
-            to={`/track/${trackId}`}
-            end
-            style={({ isActive }) => ({
-              padding: "0.5rem 1rem",
-              borderRadius: "4px",
-              textDecoration: "none",
-              color: isActive ? "var(--mantine-color-blue-6)" : "var(--mantine-color-gray-5)",
-              backgroundColor: isActive ? "var(--mantine-color-dark-6)" : "transparent",
-              fontWeight: isActive ? 600 : 400,
-            })}
-          >
-            Notes
-          </NavLink>
-          <NavLink
-            to={`/track/${trackId}/chords`}
-            style={({ isActive }) => ({
-              padding: "0.5rem 1rem",
-              borderRadius: "4px",
-              textDecoration: "none",
-              color: isActive ? "var(--mantine-color-blue-6)" : "var(--mantine-color-gray-5)",
-              backgroundColor: isActive ? "var(--mantine-color-dark-6)" : "transparent",
-              fontWeight: isActive ? 600 : 400,
-            })}
-          >
-            Chords
-          </NavLink>
-          <NavLink
-            to={`/track/${trackId}/tracks`}
-            style={({ isActive }) => ({
-              padding: "0.5rem 1rem",
-              borderRadius: "4px",
-              textDecoration: "none",
-              color: isActive ? "var(--mantine-color-blue-6)" : "var(--mantine-color-gray-5)",
-              backgroundColor: isActive ? "var(--mantine-color-dark-6)" : "transparent",
-              fontWeight: isActive ? 600 : 400,
-            })}
-          >
-            Tracks
-          </NavLink>
-        </Group>
+        {/* View Toggle Control */}
+        <SegmentedControl
+          mt="md"
+          value={currentView}
+          onChange={handleViewChange}
+          data={[
+            { label: "Notes", value: "notes" },
+            { label: "Chords", value: "chords" },
+            { label: "Tracks", value: "tracks" },
+          ]}
+        />
       </Paper>
 
       {/* Content Area - renders nested route */}
