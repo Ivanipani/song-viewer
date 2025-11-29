@@ -21,7 +21,7 @@
  *
  * Child routes: PlayerIndex (pages/player/index.tsx), TrackLayout (pages/player/track/layout.tsx)
  */
-import type {Route} from "./+types/product";
+import type { Route } from "./+types/layout";
 import { Outlet, useRouteError, useNavigate } from "react-router";
 import type { ShouldRevalidateFunction } from "react-router";
 import { Paper, Title, Text, Button, Box } from "@mantine/core";
@@ -148,7 +148,9 @@ export function ErrorBoundary() {
  *
  * Child routes: PlayerIndex receives catalog and photos via useMatches/useLoaderData
  */
-export default function PlayerLayout({ loaderData }: Route.ClientLoaderArgs) {
+export default function PlayerLayout({
+  loaderData,
+}: Route.ComponentProps) {
   const { catalog } = loaderData;
   const [opened, { toggle }] = useDisclosure();
   const { audioState, setAudioState, handleTrackSelect, playNext, playPrev } =

@@ -29,6 +29,7 @@
  *
  * No network calls - operates on parent route's data.
  */
+import type { Route } from "./+types/layout";
 import {
   useParams,
   useMatches,
@@ -39,9 +40,7 @@ import {
 import { Box, Title, Text, Paper, SegmentedControl } from "@mantine/core";
 import { AudioCatalog } from "../../../api/types";
 
-export async function clientLoader() {}
-
-export default function TrackLayout({ }: any) {
+export default function TrackLayout({}: Route.ComponentProps) {
   const { trackId } = useParams();
   const matches = useMatches();
   const navigate = useNavigate();
