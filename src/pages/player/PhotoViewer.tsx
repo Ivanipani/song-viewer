@@ -19,13 +19,23 @@
  * No network calls - photo URLs come from parent route loader.
  */
 import { Box } from "@mantine/core";
-
+import { useState, useEffect } from "react";
 interface PhotoViewerProps {
   photos: string[];
   currentPhotoIndex: number;
 }
 
-export function PhotoViewer({ photos, currentPhotoIndex }: PhotoViewerProps) {
+export function PhotoViewer({ photos }: PhotoViewerProps) {
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  useEffect(() => {
+    if (photos.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentPhotoIndex((prevIndex) => (prevIndex + 1) % photos.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [photos]);
+
   return (
     <Box style={{ width: "100%", height: "100%", padding: "2rem" }}>
       {photos.length > 0 && (

@@ -38,7 +38,6 @@ export const fetchPhotos = async (): Promise<string[]> => {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         const data = await response.json();
-        console.log(data);
         return data.map((photo: any) => `${FOTOS_API_URL}/${photo.name}`);
     } catch (error) {
         console.error('Failed to fetch photos:', error);

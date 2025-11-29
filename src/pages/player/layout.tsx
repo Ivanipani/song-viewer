@@ -21,10 +21,21 @@
  *
  * Child routes: PlayerIndex (pages/player/index.tsx)
  */
+import type { Route } from "./+types/product";
+import { useState, useEffect } from "react";
 import { Outlet, useRouteError, useNavigate } from "react-router";
 import type { ShouldRevalidateFunction } from "react-router";
 import { Paper, Title, Text, Button, Box } from "@mantine/core";
+import { useSearchParams } from "react-router";
+import { useDisclosure } from "@mantine/hooks";
 import { fetchAudioCatalog, fetchPhotos } from "../../api/media";
+import { AppShell, Anchor, ScrollArea, Burger, Group } from "@mantine/core";
+import { useAudioPlayer } from "../../hooks/useAudioPlayer";
+import { AudioCatalog, AudioFileRecord } from "../../api/types";
+import { Track } from "./Track";
+import { PlayControl } from "./PlayControl";
+import { PhotoViewer } from "./PhotoViewer";
+import ContentArea from "./ContentArea";
 
 /**
  * Revalidation strategy for the player route.
@@ -121,7 +132,7 @@ export function ErrorBoundary() {
         <Button
           variant="filled"
           onClick={() => window.location.reload()}
-          style={{ marginRight: '1rem' }}
+          style={{ marginRight: "1rem" }}
         >
           Retry
         </Button>
@@ -141,6 +152,88 @@ export function ErrorBoundary() {
  *
  * Child routes: PlayerIndex receives catalog and photos via useMatches/useLoaderData
  */
-export default function PlayerLayout() {
-  return <Outlet />;
+export default function PlayerLayout({ loaderData }: Route.ComponentProps) {
+  const { catalog } = loaderData;
+  const [opened, { toggle }] = useDisclosure();
+  const { audioState, setAudioState, handleTrackSelect, playNext, playPrev } =
+    useAudioPlayer({ catalog });
+
+  if (!catalog) {
+    return null;
+  }
+
+  return (
+    <AppShell
+      navbar={{
+        width: { base: 280, sm: 300 },
+        breakpoint: "sm",
+        collapsed: { mobile: !opened },
+      }}
+      header={{
+        height: { base: 60, sm: 0 },
+      }}
+      footer={{
+        height: 30,
+      }}
+      padding={0}
+    >
+      <AppShell.Header hiddenFrom="sm">
+        <Box
+          style={{
+            display: "flex",
+            alignItems: "center",
+            height: "100%",
+            padding: "0 1rem",
+          }}
+        >
+          <Burger opened={opened} onClick={toggle} size="sm" />
+          <Text ml="md">Song Viewer</Text>
+        </Box>
+      </AppShell.Header>
+
+      <AppShell.Navbar>
+        <AppShell.Section grow component={ScrollArea}>
+          <Box p="md">
+            {catalog.songs.map((track: AudioFileRecord) => (
+              <Track
+                key={track.id}
+                track={track}
+                selectedTrack={audioState.selectedTrack}
+                setSelectedTrack={handleTrackSelect}
+              />
+            ))}
+          </Box>
+        </AppShell.Section>
+
+        <AppShell.Section>
+          <PlayControl
+            audioState={audioState}
+            setAudioState={setAudioState}
+            playNext={playNext}
+            playPrev={playPrev}
+            showTrackPlayer={() => {}}
+          />
+        </AppShell.Section>
+      </AppShell.Navbar>
+
+      <AppShell.Main>
+        <Outlet />
+      </AppShell.Main>
+
+      <AppShell.Footer p="md">
+        <Group justify="flex-end">
+          {/* <Text size="sm" c="dimmed"> */}
+          {/*   A simple music player with photo slideshow support */}
+          {/* </Text> */}
+          <Anchor
+            href="https://github.com/Ivanipani/song-viewer"
+            target="_blank"
+            size="sm"
+          >
+            View on GitHub
+          </Anchor>
+        </Group>
+      </AppShell.Footer>
+    </AppShell>
+  );
 }
