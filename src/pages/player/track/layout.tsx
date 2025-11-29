@@ -109,8 +109,13 @@ export default function TrackLayout({}: Route.ComponentProps) {
       style={{
         display: "flex",
         flexDirection: "column",
-        height: "100%",
+        height: "calc(100vh - 90px)", // 100vh - header(60px) - footer(30px) for mobile
         overflow: "hidden",
+      }}
+      sx={{
+        "@media (min-width: 768px)": {
+          height: "calc(100vh - 30px)", // 100vh - footer(30px) for desktop (no header)
+        },
       }}
     >
       {/* Metadata Header */}
@@ -139,9 +144,9 @@ export default function TrackLayout({}: Route.ComponentProps) {
       </Paper>
 
       {/* Content Area - renders nested route */}
-      <Box style={{ flex: 1, overflow: "auto" }}>
+      <ScrollArea h="0" style={{ flex: 1 }}>
         <Outlet />
-      </Box>
+      </ScrollArea>
     </Box>
   );
 }

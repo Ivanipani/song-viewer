@@ -20,7 +20,6 @@
 import {
   Box,
   Text,
-  ScrollArea,
   Paper,
   Stack,
   Badge,
@@ -105,9 +104,8 @@ export default function NotesView() {
   }
 
   return (
-    <ScrollArea>
-      <Box p="lg">
-        <Stack gap="xl">
+    <Box p="lg">
+      <Stack gap="xl">
           {/* Markdown Notes Section */}
           {notes?.content && (
             <Paper p="md" withBorder>
@@ -435,7 +433,6 @@ export default function NotesView() {
             </>
           )}
         </Stack>
-      </Box>
-    </ScrollArea>
+    </Box>
   );
 }
