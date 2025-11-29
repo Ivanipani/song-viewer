@@ -135,7 +135,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
         };
       });
     },
-    [setSearchParams, catalog],
+    [catalog],
   );
 
   /**
@@ -298,7 +298,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
         handleTrackSelect(track);
       }
     }
-  }, [searchParams]);
+  }, [searchParams, catalog,  handleTrackSelect]);
 
   /**
    * Cleanup on unmount
@@ -308,6 +308,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
       cleanupSound(audioState.sound);
       stopPositionTracking();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
