@@ -1,3 +1,31 @@
+/**
+ * Track list sidebar component (unused in current routing).
+ *
+ * Component hierarchy:
+ * TrackViewer
+ *   ├─ Track (multiple - one per song in catalog)
+ *   └─ PlayControl (player controls at bottom)
+ *
+ * Responsibilities:
+ * - Displays scrollable list of all tracks
+ * - Shows PlayControl panel at bottom
+ * - Handles mobile navigation to full player view
+ *
+ * Data received from parent:
+ * - catalog: AudioCatalog - song list
+ * - audioState: AudioState - from useAudioPlayer hook
+ * - handleTrackSelect: callback to select/play track
+ * - setAudioState: audioState updater
+ * - playNext/playPrev: track navigation callbacks
+ * - isMobile: boolean - responsive layout flag
+ * - showTrackPlayer: boolean - whether full player is visible
+ * - onShowTrackPlayer: callback to show full player
+ *
+ * No data ownership - all state passed from parent.
+ * No network calls - operates on parent's data.
+ *
+ * Note: This component is currently unused in routes.ts but maintained for potential future use.
+ */
 import { Box } from "@mantine/core";
 import { useNavigate } from "react-router";
 import { AudioState, AudioFileRecord, AudioCatalog } from "../../api/types";

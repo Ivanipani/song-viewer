@@ -1,8 +1,33 @@
+/**
+ * Root component hierarchy and data flow:
+ *
+ * HydratedRouter (from entry.client.tsx)
+ *   └─ Root
+ *       ├─ MantineProvider (wraps entire app with Mantine UI theme)
+ *       ├─ NavigationProgress (shows loading bar during route transitions)
+ *       └─ AppContent (renders child routes via Outlet)
+ *
+ * Alternative components used during special states:
+ *   - Layout: HTML document structure wrapper
+ *   - HydrateFallback: Shown during initial app hydration
+ *   - ErrorBoundary: Shown when route errors occur
+ *
+ * Data ownership: None - this is a presentation wrapper
+ * Network calls: None - data fetching happens in route loaders
+ */
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useNavigation } from "react-router";
 import { MantineProvider, Box, Title, Text, Button, Progress } from "@mantine/core";
 import { theme } from "./theme";
 import { PlayerSkeleton } from "./pages/player/PlayerSkeleton";
 
+/**
+ * HTML document layout wrapper component.
+ *
+ * Provides the basic HTML structure including head and body tags.
+ * Used by React Router to wrap all route content.
+ *
+ * @param children - The route content to render within the body
+ */
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -23,6 +48,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Navigation progress indicator component.
+ *
+ * Displays an animated progress bar at the top of the screen during route navigation.
+ * Automatically shows/hides based on React Router's navigation state.
+ *
+ * Data sources: useNavigation hook (navigation.state from React Router)
+ */
 function NavigationProgress() {
   const navigation = useNavigation();
   const isNavigating = navigation.state === 'loading';
@@ -45,6 +78,14 @@ function NavigationProgress() {
   );
 }
 
+/**
+ * Main application content wrapper component.
+ *
+ * Provides a full-height container for route content and renders child routes via Outlet.
+ * Sets up viewport constraints for the player interface.
+ *
+ * Child routes: Renders content from routes.ts via Outlet
+ */
 function AppContent() {
   return (
     <Box
@@ -59,6 +100,14 @@ function AppContent() {
   );
 }
 
+/**
+ * Hydration fallback component.
+ *
+ * Displayed during the initial app hydration phase before the main app loads.
+ * Shows a skeleton loader to provide instant visual feedback.
+ *
+ * Uses: PlayerSkeleton component for loading state
+ */
 export function HydrateFallback() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">
@@ -67,6 +116,14 @@ export function HydrateFallback() {
   );
 }
 
+/**
+ * Root-level error boundary component.
+ *
+ * Catches and displays errors that occur during routing.
+ * Provides a user-friendly error message and navigation option to return home.
+ *
+ * Data sources: useRouteError hook (error details from React Router)
+ */
 export function ErrorBoundary() {
   const error = useRouteError();
 
@@ -87,6 +144,17 @@ export function ErrorBoundary() {
   );
 }
 
+/**
+ * Root application component.
+ *
+ * Top-level component that wraps the entire application with:
+ * - MantineProvider for UI theming (dark mode by default)
+ * - NavigationProgress for route transition feedback
+ * - AppContent which renders child routes
+ *
+ * This is the default export rendered by the router at the root level.
+ * All route content is rendered as children via the Outlet in AppContent.
+ */
 export default function Root() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">

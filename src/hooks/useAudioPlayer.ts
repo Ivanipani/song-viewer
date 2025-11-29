@@ -298,7 +298,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
         handleTrackSelect(track);
       }
     }
-  }, [searchParams, catalog,  handleTrackSelect]);
+  }, [searchParams, catalog, handleTrackSelect]);
 
   /**
    * Cleanup on unmount

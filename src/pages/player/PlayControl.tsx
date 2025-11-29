@@ -1,3 +1,30 @@
+/**
+ * Audio player control panel component.
+ *
+ * Parent components: PlayerIndex, TrackViewer, TrackPlayer
+ *
+ * Responsibilities:
+ * - Displays currently playing track info (title, artist)
+ * - Shows and controls playback position with seekable slider
+ * - Provides play/pause, skip forward/back controls
+ * - Manages shuffle and loop modes (none/all/single)
+ * - Handles keyboard shortcuts (spacebar for play/pause)
+ *
+ * Data received from parent:
+ * - audioState: AudioState - complete audio playback state
+ *   Contains: selectedTrack, sound, isPlaying, position, duration, loop, shuffle
+ * - setAudioState: updater function to modify audioState
+ * - playNext/playPrev: callbacks to skip tracks (implemented in useAudioPlayer)
+ * - showTrackPlayer: callback to show full player view (mobile only)
+ *
+ * State management:
+ * - Reads audioState to display current track and playback status
+ * - Updates audioState to control playback (play/pause, seek, shuffle, loop)
+ * - Syncs play/pause state with Howl sound instance via useEffect
+ *
+ * No data ownership - all state managed by parent's useAudioPlayer hook.
+ * No network calls - operates on already-loaded audio.
+ */
 import { Box, Slider, Text, Group, Title, ActionIcon } from "@mantine/core";
 import { useEffect } from "react";
 import { AudioState } from "../../api/types";
