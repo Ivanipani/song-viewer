@@ -1,5 +1,5 @@
 import yaml from "js-yaml";
-import { AudioCatalog } from "./types";
+import { AudioCatalog, ExtendedMetadata, TrackNotes } from "./types";
 import { CANCIONES_API_URL, FOTOS_API_URL } from "./constants";
 
 /**
@@ -42,5 +42,64 @@ export const fetchPhotos = async (): Promise<string[]> => {
     } catch (error) {
         console.error('Failed to fetch photos:', error);
         throw new Error('Failed to fetch photos');
+    }
+};
+
+/**
+ * Fetches markdown notes for a specific track
+ *
+ * @param trackId - The unique track identifier
+ * @returns Promise resolving to TrackNotes with markdown content, or null if not found
+ *
+ * @example
+ * const notes = await fetchTrackNotes('ivan-perdomo-busqueda');
+ * if (notes) {
+ *   console.log(notes.content);
+ * }
+ */
+export const fetchTrackNotes = async (trackId: string): Promise<TrackNotes | null> => {
+    try {
+        const response = await fetch(`${CANCIONES_API_URL}/tracks/${trackId}/notes.md`);
+        if (!response.ok) {
+            if (response.status === 404) {
+                return null;
+            }
+            throw new Error(`Failed to fetch notes: ${response.status}`);
+        }
+        const content = await response.text();
+        return { content };
+    } catch (error) {
+        console.error(`Error fetching notes for track ${trackId}:`, error);
+        return null;
+    }
+};
+
+/**
+ * Fetches extended metadata for a specific track
+ *
+ * @param trackId - The unique track identifier
+ * @returns Promise resolving to ExtendedMetadata object, or null if not found
+ *
+ * @example
+ * const metadata = await fetchTrackMetadata('ivan-perdomo-busqueda');
+ * if (metadata?.theory?.key) {
+ *   console.log(`Key: ${metadata.theory.key}`);
+ * }
+ */
+export const fetchTrackMetadata = async (trackId: string): Promise<ExtendedMetadata | null> => {
+    try {
+        const response = await fetch(`${CANCIONES_API_URL}/tracks/${trackId}/metadata.yml`);
+        if (!response.ok) {
+            if (response.status === 404) {
+                return null;
+            }
+            throw new Error(`Failed to fetch metadata: ${response.status}`);
+        }
+        const text = await response.text();
+        const metadata = yaml.load(text) as ExtendedMetadata;
+        return metadata;
+    } catch (error) {
+        console.error(`Error fetching metadata for track ${trackId}:`, error);
+        return null;
     }
 };

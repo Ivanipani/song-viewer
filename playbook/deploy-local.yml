@@ -11,7 +11,7 @@
 
     - name: Check build directory
       ansible.builtin.stat:
-        path: "../dist"
+        path: "../build"
       register: build_stat
 
     - name: Build React app

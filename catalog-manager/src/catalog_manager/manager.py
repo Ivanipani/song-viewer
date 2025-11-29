@@ -5,6 +5,7 @@ import hashlib
 from pathlib import Path
 from datetime import datetime
 import os
+import subprocess
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
@@ -210,6 +211,142 @@ def verify(ctx):
         click.echo("All files verified successfully!")
     else:
         ctx.exit(1)
+
+
+@cli.command()
+@click.argument("song_id")
+@click.pass_context
+def edit_notes(ctx, song_id: str):
+    """Edit markdown notes for a song."""
+    catalog_manager = ctx.obj["catalog_manager"]
+
+    # Verify song exists
+    if not catalog_manager.contains(song_id):
+        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+
+    # Create tracks directory structure
+    catalog_dir = ctx.obj["catalog_path"].parent
+    tracks_dir = catalog_dir / "tracks"
+    track_dir = tracks_dir / song_id
+    track_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create or open notes file
+    notes_file = track_dir / "notes.md"
+    if not notes_file.exists():
+        # Create template
+        song = next(s for s in catalog_manager.songs if s.id == song_id)
+        notes_file.write_text(f"""# {song.title}
+
+## Overview
+Add your overview here...
+
+## Performance Notes
+Add performance notes here...
+
+## Inspiration
+What inspired this piece?
+""")
+
+    # Open in default editor
+    editor = os.environ.get("EDITOR", "vim")
+    subprocess.run([editor, str(notes_file)])
+
+    click.echo(f"Notes updated for {song_id}")
+
+
+@cli.command()
+@click.argument("song_id")
+@click.pass_context
+def edit_metadata(ctx, song_id: str):
+    """Edit extended metadata for a song."""
+    catalog_manager = ctx.obj["catalog_manager"]
+
+    # Verify song exists
+    if not catalog_manager.contains(song_id):
+        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+
+    # Create tracks directory structure
+    catalog_dir = ctx.obj["catalog_path"].parent
+    tracks_dir = catalog_dir / "tracks"
+    track_dir = tracks_dir / song_id
+    track_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create or open metadata file
+    metadata_file = track_dir / "metadata.yml"
+    if not metadata_file.exists():
+        # Create template
+        default_metadata = """# Extended Metadata
+
+performance:
+  date: ""
+  location: ""
+  mood: ""
+  take_number: 1
+  improvised: false
+
+recording:
+  microphone: ""
+  interface: ""
+  daw: ""
+  effects: []
+  sample_rate: 44100
+  bit_depth: 24
+
+theory:
+  key: ""
+  time_signature: "4/4"
+  tempo_bpm: 120
+  chord_progression: []
+  scale: ""
+  techniques: []
+
+tags: []
+inspiration: ""
+related_tracks: []
+"""
+        metadata_file.write_text(default_metadata)
+
+    # Open in default editor
+    editor = os.environ.get("EDITOR", "vim")
+    subprocess.run([editor, str(metadata_file)])
+
+    click.echo(f"Metadata updated for {song_id}")
+
+
+@cli.command()
+@click.argument("song_id")
+@click.pass_context
+def show_notes(ctx, song_id: str):
+    """Display notes and metadata for a song."""
+    catalog_manager = ctx.obj["catalog_manager"]
+
+    # Verify song exists
+    if not catalog_manager.contains(song_id):
+        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+
+    catalog_dir = ctx.obj["catalog_path"].parent
+    tracks_dir = catalog_dir / "tracks"
+    track_dir = tracks_dir / song_id
+
+    # Display notes
+    notes_file = track_dir / "notes.md"
+    if notes_file.exists():
+        click.echo("\n" + "=" * 80)
+        click.echo("NOTES")
+        click.echo("=" * 80)
+        click.echo(notes_file.read_text())
+    else:
+        click.echo(f"\nNo notes file found at {notes_file}")
+
+    # Display metadata
+    metadata_file = track_dir / "metadata.yml"
+    if metadata_file.exists():
+        click.echo("\n" + "=" * 80)
+        click.echo("METADATA")
+        click.echo("=" * 80)
+        click.echo(metadata_file.read_text())
+    else:
+        click.echo(f"\nNo metadata file found at {metadata_file}")
 
 
 def main():
