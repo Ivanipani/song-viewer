@@ -48,7 +48,7 @@
   hosts: webservers
   vars:
     track_path_src: "/tmp/song-viewer/catalog-manager/catalog"
-    track_path_dest: "/var/www/song-viewer/tracks"
+    track_path_dest: "/var/www/song-viewer/canciones/tracks"
   tasks:
     - name: Create tracks directory
       ansible.builtin.file:

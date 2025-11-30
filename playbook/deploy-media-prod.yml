@@ -2,16 +2,16 @@
 - name: Deploy media to web server
   hosts: webservers
   vars:
-    songstore_path_src: "/Users/ivanperdomo/song-viewer/canciones"
+    media_path_src: "/Users/ivanperdomo/song-viewer/canciones"
+    media_path_dest: "/public/song-viewer/canciones"
     photos_path_src: "/Users/ivanperdomo/song-viewer/fotos"
-    catalog_file_path_src: "../catalog-manager/catalog/catalog.yml"
-    tracks_dir_src: "../catalog-manager/catalog/tracks"
     photos_path_dest: "/public/song-viewer/fotos"
-    songstore_path_dest: "/public/song-viewer/canciones"
+    track_path_src: "../catalog-manager/catalog/tracks"
+    track_path_dest: /public/song-viewer/canciones/tracks
   tasks:
-    - name: Create audio directory
+    - name: Create media directory
       ansible.builtin.file:
-        path: "{{ songstore_path_dest }}"
+        path: "{{ media_path_dest }}"
         state: directory
         mode: '0777'
         owner: www-data
@@ -25,15 +25,10 @@
         owner: www-data
         group: www-data
       become: true
-    - name: Copy catalog.yml to server
-      ansible.builtin.copy:
-        src: "{{ catalog_file_path_src }}"
-        dest: "{{ songstore_path_dest }}/catalog.yml"
-      become: true
     - name: Copy audio files to server
       ansible.builtin.copy:
-        src: "{{ songstore_path_src }}/"
-        dest: "{{ songstore_path_dest }}"
+        src: "{{ media_path_src }}/"
+        dest: "{{ media_path_dest }}"
       become: true
     - name: Copy photos to server
       ansible.builtin.copy:
@@ -43,7 +38,7 @@
 
     - name: Create tracks directory
       ansible.builtin.file:
-        path: "{{ songstore_path_dest }}/tracks"
+        path: "{{ track_path_dest }}"
         state: directory
         mode: '0755'
         owner: www-data
@@ -52,13 +47,13 @@
 
     - name: Copy tracks directory to server
       ansible.builtin.copy:
-        src: "{{ tracks_dir_src }}/"
-        dest: "{{ songstore_path_dest }}/tracks"
+        src: "{{ track_path_src }}/"
+        dest: "{{ track_path_dest }}"
       become: true
 
-    - name: "Find all files and folders in {{ songstore_path_dest }}"
+    - name: "Find all files and folders in {{ media_path_dest }}"
       find:
-        path: "{{ songstore_path_dest }}"
+        path: "{{ media_path_dest }}"
         file_type: any
         recurse: true
       register: folder_contents_songstore

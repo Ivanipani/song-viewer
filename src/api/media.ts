@@ -14,7 +14,7 @@ import { MEDIA_API_URL, TRACKS_API_URL, FOTOS_API_URL } from "./constants";
  */
 export const fetchAudioCatalog = async (): Promise<AudioCatalog> => {
     try {
-        const response = await fetch(`${TRACKS_API_URL}/catalog.yml`);
+        const response = await fetch(`${MEDIA_API_URL}/catalog.yml`);
         if (!response.ok) {
             throw new Error("Failed to fetch song catalog")
         }
