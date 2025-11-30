@@ -5,7 +5,8 @@
     - role: '/Users/ivanperdomo/github/ivanipani/server-automation/playbooks/roles/nginx'
   vars:
     build_path_dest: /var/www/song-viewer
-    audio_path_dest: /public/song-viewer/canciones
+    media_path_dest: /public/song-viewer/canciones
+    track_path_dest: /public/song-viewer/canciones/tracks
     photos_path_dest: /public/song-viewer/fotos
     server_port: 80
     domain: canciones.poochella.club
