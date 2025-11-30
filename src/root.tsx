@@ -16,7 +16,7 @@
  * Network calls: None - data fetching happens in route loaders
  */
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, useNavigation } from "react-router";
-import { MantineProvider, Box, Title, Text, Button, Progress } from "@mantine/core";
+import { MantineProvider, Box, Title, Text, Button, Progress, localStorageColorSchemeManager } from "@mantine/core";
 import { theme } from "./theme";
 import { PlayerSkeleton } from "./pages/player/PlayerSkeleton";
 
@@ -90,9 +90,9 @@ function AppContent() {
   return (
     <Box
       style={{
-        minHeight: '100dvh',
-        maxHeight: '100dvh',
-        overflow: "hidden",
+        height: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <Outlet />
@@ -110,7 +110,11 @@ function AppContent() {
  */
 export function HydrateFallback() {
   return (
-    <MantineProvider theme={theme} defaultColorScheme="dark">
+    <MantineProvider
+      theme={theme}
+      defaultColorScheme="light"
+      colorSchemeManager={localStorageColorSchemeManager({ key: 'mantine-color-scheme' })}
+    >
       <PlayerSkeleton />
     </MantineProvider>
   );
@@ -128,7 +132,11 @@ export function ErrorBoundary() {
   const error = useRouteError();
 
   return (
-    <MantineProvider theme={theme} defaultColorScheme="dark">
+    <MantineProvider
+      theme={theme}
+      defaultColorScheme="light"
+      colorSchemeManager={localStorageColorSchemeManager({ key: 'mantine-color-scheme' })}
+    >
       <Box style={{ padding: '2rem', textAlign: 'center', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Box>
           <Title order={3} mb="md">Something went wrong</Title>
@@ -157,7 +165,11 @@ export function ErrorBoundary() {
  */
 export default function Root() {
   return (
-    <MantineProvider theme={theme} defaultColorScheme="dark">
+    <MantineProvider
+      theme={theme}
+      defaultColorScheme="light"
+      colorSchemeManager={localStorageColorSchemeManager({ key: 'mantine-color-scheme' })}
+    >
       <NavigationProgress />
       <AppContent />
     </MantineProvider>

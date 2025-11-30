@@ -72,6 +72,17 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
    */
   const handleTrackSelect = useCallback(
     (track: AudioFileRecord) => {
+      if (
+        audioState.selectedTrack &&
+        track.id === audioState.selectedTrack.id
+      ) {
+        setAudioState((state) => {
+          return {
+            ...state,
+            isPlaying: false,
+          };
+        });
+      }
       // Update URL with track ID
       setSearchParams(
         (prev) => {

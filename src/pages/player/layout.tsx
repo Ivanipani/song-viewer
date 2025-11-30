@@ -32,6 +32,7 @@ import { useAudioPlayer } from "../../hooks/useAudioPlayer";
 import { AudioFileRecord } from "../../api/types";
 import { Track } from "./Track";
 import { PlayControl } from "./PlayControl";
+import { ColorSchemeToggle } from "./ColorSchemeToggle";
 
 /**
  * Revalidation strategy for the player route.
@@ -174,6 +175,9 @@ export default function PlayerLayout({
         height: 30,
       }}
       padding={0}
+      style={{
+        height: '100%',
+      }}
     >
       <AppShell.Header hiddenFrom="sm">
         <Box
@@ -220,10 +224,8 @@ export default function PlayerLayout({
       </AppShell.Main>
 
       <AppShell.Footer p="md">
-        <Group justify="flex-end">
-          {/* <Text size="sm" c="dimmed"> */}
-          {/*   A simple music player with photo slideshow support */}
-          {/* </Text> */}
+        <Group justify="space-between">
+          <ColorSchemeToggle />
           <Anchor
             href="https://github.com/Ivanipani/song-viewer"
             target="_blank"

@@ -144,7 +144,7 @@ export const PlayControl = (props: PlayControlProps) => {
               }}
               className={classes.slider}
               label={null}
-              color="white"
+              color="warmBrown.5"
             />
             <Text size="sm">{formatTime(props.audioState?.duration ?? 0)}</Text>
           </Box>
@@ -162,7 +162,7 @@ export const PlayControl = (props: PlayControlProps) => {
         };
 
         const getLoopColor = () => {
-          return props.audioState.loop !== "none" ? "blue" : "gray";
+          return props.audioState.loop !== "none" ? "warmBrown" : "warmGray";
         };
 
         return (
@@ -219,7 +219,7 @@ export const PlayControl = (props: PlayControlProps) => {
             <ActionIcon
               onClick={toggleShuffle}
               variant="subtle"
-              color={props.audioState?.shuffle ? "blue" : "gray"}
+              color={props.audioState?.shuffle ? "warmBrown" : "warmGray"}
               size="lg"
               style={{ margin: "0 4px" }}
             >
@@ -251,7 +251,7 @@ export const PlayControl = (props: PlayControlProps) => {
                 justifyContent: "flex-end",
                 paddingInline: "1rem",
                 paddingBlock: "0.5rem",
-                borderTop: "1px solid var(--mantine-color-dark-4)",
+                borderTop: "1px solid light-dark(var(--mantine-color-warmBeige-3), var(--mantine-color-warmGray-7))",
             }}
         >
             {nowPlaying()}

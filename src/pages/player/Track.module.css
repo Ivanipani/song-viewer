@@ -9,10 +9,11 @@
   background-color: transparent;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
+  border: 1px solid
 }
 
 .track:hover {
-  background-color: rgba(25, 118, 210, 0.04);
+  background-color: light-dark(var(--mantine-color-warmBeige-2), var(--mantine-color-warmGray-7));
 }
 
 .track:active {
@@ -27,7 +28,8 @@
   flex-direction: row;
   align-items: center;
   width: 100%;
-  background-color: rgba(25, 118, 210, 0.25);
+  background-color: light-dark(var(--mantine-color-warmBrown-2), var(--mantine-color-warmBrown-8));
   transition: all 0.2s ease-in-out;
   cursor: pointer;
+  border: 1px solid
 }

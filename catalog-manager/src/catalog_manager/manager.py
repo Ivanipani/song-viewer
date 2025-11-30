@@ -2,12 +2,31 @@
 import click
 import yaml
 import hashlib
+import re
 from pathlib import Path
 from datetime import datetime
 import os
 import subprocess
 from typing import Optional, List
 from pydantic import BaseModel, Field
+
+
+def sanitize_string(s: str) -> str:
+    """Sanitize string for use in IDs (alphanumeric and hyphens only)."""
+    # Lowercase and replace spaces with hyphens
+    s = s.lower().replace(" ", "-")
+    # Remove all non-alphanumeric except hyphens
+    s = re.sub(r'[^a-z0-9-]', '', s)
+    # Collapse multiple hyphens
+    s = re.sub(r'-+', '-', s)
+    # Strip leading/trailing hyphens
+    return s.strip('-')
+
+
+def generate_id_hash(title: str, artist: str, filename: str) -> str:
+    """Generate 4-char hash for ID uniqueness."""
+    combined = f"{title}|{artist}|{filename}"
+    return hashlib.sha256(combined.encode()).hexdigest()[:4]
 
 
 class Song(BaseModel):
@@ -43,8 +62,12 @@ Metadata: {self.metadata}
         metadata: Optional[dict] = None,
     ) -> "Song":
         """Factory method to create a new Song instance."""
+        sanitized_title = sanitize_string(title)
+        id_hash = generate_id_hash(title, artist, filename)
+        song_id = f"{sanitized_title}-{id_hash}"
+
         return cls(
-            id=f"{artist}-{title}".lower().replace(" ", "-"),
+            id=song_id,
             title=title,
             artist=artist,
             filename=filename,

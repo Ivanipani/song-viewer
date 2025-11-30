@@ -117,7 +117,9 @@ export default function TrackLayout({}: Route.ComponentProps) {
       <Paper
         p="md"
         style={{
-          borderBottom: "1px solid var(--mantine-color-dark-4)",
+          borderBottom:
+            "1px solid light-dark(var(--mantine-color-warmBeige-3), var(--mantine-color-warmGray-7))",
+          flexShrink: 0,
         }}
       >
         <Title order={3}>{track.title}</Title>
@@ -132,13 +134,15 @@ export default function TrackLayout({}: Route.ComponentProps) {
           onChange={handleViewChange}
           data={[
             { label: "Notes", value: "notes" },
-            { label: "Chords", value: "chords" },
-            { label: "Tracks", value: "tracks" },
+            // { label: "Chords", value: "chords" },
+            // { label: "Tracks", value: "tracks" },
           ]}
         />
       </Paper>
 
-      <Outlet />
+      <ScrollArea style={{ flex: 1 }}>
+        <Outlet />
+      </ScrollArea>
     </Box>
   );
 }

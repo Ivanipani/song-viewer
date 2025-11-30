@@ -1,0 +1,28 @@
+# Extended Metadata for Un viaje
+
+performance:
+  date: ""
+  location: ""
+  mood: ""
+  take_number: 1
+  improvised: false
+
+recording:
+  microphone: ""
+  interface: ""
+  daw: ""
+  effects: []
+  sample_rate: 44100
+  bit_depth: 24
+
+theory:
+  key: ""
+  time_signature: "4/4"
+  tempo_bpm: 120
+  chord_progression: []
+  scale: ""
+  techniques: []
+
+tags: []
+inspiration: ""
+related_tracks: []
