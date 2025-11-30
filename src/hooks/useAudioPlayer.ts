@@ -76,7 +76,6 @@ export function useAudioPlayer({
    */
   const handleTrackSelect = useCallback(
     (track: AudioFileRecord) => {
-      console.log("handleTrackSelect", track);
 
       // Update URL to reflect the selected track
       isNavigating.current = true;
@@ -88,7 +87,6 @@ export function useAudioPlayer({
         audioState.selectedTrack &&
         track.id === audioState.selectedTrack.id
       ) {
-        console.log("same track, skipping");
         setAudioState((state) => {
           return {
             ...state,
@@ -96,11 +94,8 @@ export function useAudioPlayer({
           };
         });
       }
-      console.log("old:", audioState.selectedTrack.id);
-      console.log("new:", track.id);
 
       setAudioState((prev) => {
-        console.log("cleaning up and recreating sound", prev);
         // Clean up previous sound
         cleanupSound(prev.sound);
 
@@ -133,7 +128,6 @@ export function useAudioPlayer({
                   state.shuffle,
                   state.loop,
                 );
-                console.log("onend setting to next track", nextTrack);
                 if (nextTrack) {
                   // Auto-play next track
                   handleTrackSelect(nextTrack);
@@ -180,7 +174,6 @@ export function useAudioPlayer({
       audioState.shuffle,
       audioState.loop,
     );
-    console.log("next track", nextTrack);
     if (nextTrack) {
       handleTrackSelect(nextTrack);
     }

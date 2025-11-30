@@ -28,29 +28,21 @@ import {
   Alert,
   useComputedColorScheme,
 } from "@mantine/core";
-import { useParams, useMatches } from "react-router";
+import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { fetchTrackNotes, fetchTrackMetadata } from "../../../api/media";
-import { TrackNotes, ExtendedMetadata, AudioCatalog } from "../../../api/types";
+import { TrackNotes, ExtendedMetadata } from "../../../api/types";
 import ReactMarkdown from "react-markdown";
 import { IconInfoCircle } from "@tabler/icons-react";
 
 export default function NotesView() {
   const { trackId } = useParams();
-  const matches = useMatches();
   const computedColorScheme = useComputedColorScheme('light');
   const [notes, setNotes] = useState<TrackNotes | null>(null);
   const [metadata, setMetadata] = useState<ExtendedMetadata | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Get catalog from parent route
-  const parentMatch = matches.find(
-    (match) =>
-      match.data && typeof match.data === "object" && "catalog" in match.data,
-  );
-  const parentData = parentMatch?.data as { catalog?: AudioCatalog } | undefined;
-  const catalog = parentData?.catalog;
 
   useEffect(() => {
     if (!trackId) return;
