@@ -176,7 +176,7 @@ export default function PlayerLayout({
       }}
       padding={0}
       style={{
-        height: '100%',
+        height: "100%",
       }}
     >
       <AppShell.Header hiddenFrom="sm">
@@ -223,7 +223,7 @@ export default function PlayerLayout({
         <Outlet />
       </AppShell.Main>
 
-      <AppShell.Footer p="md">
+      <AppShell.Footer px="xs">
         <Group justify="space-between">
           <ColorSchemeToggle />
           <Anchor
