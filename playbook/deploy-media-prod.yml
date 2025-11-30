@@ -3,10 +3,11 @@
   hosts: webservers
   vars:
     songstore_path_src: "/Users/ivanperdomo/song-viewer/canciones"
-    songstore_path_dest: "/public/song-viewer/canciones"
     photos_path_src: "/Users/ivanperdomo/song-viewer/fotos"
-    photos_path_dest: "/public/song-viewer/fotos"
     catalog_file_path_src: "../catalog-manager/catalog/catalog.yml"
+    tracks_dir_src: "../catalog-manager/catalog/tracks"
+    photos_path_dest: "/public/song-viewer/fotos"
+    songstore_path_dest: "/public/song-viewer/canciones"
   tasks:
     - name: Create audio directory
       ansible.builtin.file:
@@ -39,6 +40,22 @@
         src: "{{ photos_path_src }}/"
         dest: "{{ photos_path_dest }}"
       become: true
+
+    - name: Create tracks directory
+      ansible.builtin.file:
+        path: "{{ songstore_path_dest }}/tracks"
+        state: directory
+        mode: '0755'
+        owner: www-data
+        group: www-data
+      become: true
+
+    - name: Copy tracks directory to server
+      ansible.builtin.copy:
+        src: "{{ tracks_dir_src }}/"
+        dest: "{{ songstore_path_dest }}/tracks"
+      become: true
+
     - name: "Find all files and folders in {{ songstore_path_dest }}"
       find:
         path: "{{ songstore_path_dest }}"

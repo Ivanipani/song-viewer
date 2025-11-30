@@ -44,4 +44,52 @@
         dest: "{{ build_path_dest }}"
         mode: '0644'
 
+- name: Deploy track metadata to web server
+  hosts: webservers
+  vars:
+    track_path_src: "/tmp/song-viewer/catalog-manager/catalog"
+    track_path_dest: "/var/www/song-viewer/tracks"
+  tasks:
+    - name: Create tracks directory
+      ansible.builtin.file:
+        path: "{{ track_path_dest }}"
+        state: directory
+        mode: '0755'
+        owner: www-data
+        group: www-data
 
+    - name: Copy track metadata to server
+      ansible.builtin.copy:
+        src: "{{ track_path_src }}/"
+        dest: "{{ track_path_dest }}"
+        mode: '0644'
+
+- name: Configure NGINX
+  hosts: webservers
+  vars:
+    build_path_dest: "/var/www/song-viewer"
+    media_path_dest: "/var/www/media/canciones"
+    track_path_dest: "/var/www/song-viewer/tracks"
+    photos_path_dest: "/var/www/media/fotos"
+    server_port: 80
+    domain: "canciones.poochella.club"
+  tasks:
+    - name: Configure NGINX site
+      ansible.builtin.template:
+        src: templates/nginx-react-app.conf.j2
+        dest: /etc/nginx/sites-available/song-viewer
+        mode: '0644'
+      notify: Restart NGINX
+
+    - name: Enable NGINX site
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/song-viewer
+        dest: /etc/nginx/sites-enabled/song-viewer
+        state: link
+      notify: Restart NGINX
+
+  handlers:
+    - name: Restart NGINX
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

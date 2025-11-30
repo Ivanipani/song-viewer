@@ -1,0 +1,26 @@
+# Extended Metadata for Dia de Sol
+
+performance:
+  date: "2024-12-20"
+
+recording:
+  interface: "Focusrite 8i6"
+  daw: "REAPER"
+
+theory:
+  key: "G"
+  time_signature: "4/4"
+  tempo_bpm: 110
+  chord_progression:
+    - measure: 1
+      chord: "G"
+    - measure: 2
+      chord: "D"
+    - measure: 3
+      chord: "Am"
+  scale: "G major"
+tags:
+  - "uplifting"
+  - "major-key"
+  - "cheerful"
+

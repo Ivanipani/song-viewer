@@ -1,0 +1,29 @@
+# Extended Metadata for Busqueda
+
+performance:
+  date: "2024-12-21"
+
+recording:
+  interface: "Focusrite 8i6"
+  daw: "REAPER"
+
+theory:
+  key: "Am"
+  time_signature: "4/4"
+  tempo_bpm: 92
+  chord_progression:
+    - measure: 1
+      chord: "Am"
+    - measure: 2
+      chord: "F"
+    - measure: 3
+      chord: "C"
+    - measure: 4
+      chord: "G"
+  scale: "A natural minor"
+
+tags:
+  - "improvised"
+  - "introspective"
+  - "fingerstyle"
+

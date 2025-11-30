@@ -1,3 +1,20 @@
+/**
+ * Loading skeleton for the player interface.
+ *
+ * Parent components: HydrateFallback (from root.tsx)
+ *
+ * Responsibilities:
+ * - Displays placeholder UI during app hydration/loading
+ * - Mimics the layout of the actual player (track list + photo viewer)
+ * - Provides instant visual feedback before data loads
+ *
+ * Layout structure:
+ * - Left sidebar: 8 track item skeletons + control panel skeleton
+ * - Right main area: large photo viewer skeleton
+ *
+ * No data ownership - purely presentational loading state.
+ * No network calls - static skeleton UI.
+ */
 import { Box, Paper, Skeleton } from '@mantine/core';
 
 export function PlayerSkeleton() {
