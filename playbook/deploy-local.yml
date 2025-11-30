@@ -3,9 +3,7 @@
   hosts: localhost
   vars:
     build_path_dest: "{{ '../build/client' | realpath }}"
-    media_path_dest: "/Users/ivanperdomo/song-viewer/canciones"
-    photos_path_dest: "/Users/ivanperdomo/song-viewer/fotos"
-    track_path_dest: "{{ '../catalog-manager/catalog' | realpath }}"
+    catalog_path_dest: "{{ '../catalog-manager/catalog' | realpath}}"
     server_port: 5001
     domain: "localhost"
   tasks:
