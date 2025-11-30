@@ -9,7 +9,7 @@ import { AudioFileRecord, AudioCatalog, AudioState } from "../api/types";
  */
 export function getNextTrackIndex(
   currentIndex: number,
-  catalogLength: number
+  catalogLength: number,
 ): number | null {
   const nextIndex = currentIndex + 1;
   return nextIndex < catalogLength ? nextIndex : null;
@@ -33,7 +33,7 @@ export function getPreviousTrackIndex(currentIndex: number): number | null {
  */
 export function getRandomTrack(
   currentTrack: AudioFileRecord | null,
-  catalog: AudioCatalog
+  catalog: AudioCatalog,
 ): AudioFileRecord | null {
   if (catalog.songs.length === 0) return null;
   if (catalog.songs.length === 1) return catalog.songs[0];
@@ -138,6 +138,7 @@ export interface SoundCallbacks {
  * @returns A new Howl instance
  */
 export function createSound(url: string, callbacks: SoundCallbacks = {}): Howl {
+  console.debug("Creating Howl object for url=", url);
   const sound = new Howl({
     src: [url],
     autoplay: false,
@@ -197,7 +198,7 @@ export function cleanupSound(sound: Howl | null): void {
  */
 export function createInitialAudioState(
   catalog: AudioCatalog,
-  callbacks: SoundCallbacks = {}
+  callbacks: SoundCallbacks = {},
 ): Partial<AudioState> {
   const firstTrack = catalog.songs[0];
   const sound = createSound(firstTrack.url, callbacks);

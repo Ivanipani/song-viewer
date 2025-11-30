@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useSearchParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { AudioState, AudioFileRecord, AudioCatalog } from "../api/types";
 import {
   createSound,
@@ -26,8 +26,11 @@ interface UseAudioPlayerReturn {
  * @param catalog - The audio catalog containing all tracks
  * @returns Audio player state and control functions
  */
-export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayerReturn {
-  const [searchParams, setSearchParams] = useSearchParams();
+export function useAudioPlayer({
+  catalog,
+}: UseAudioPlayerProps): UseAudioPlayerReturn {
+  const { trackId } = useParams<{ trackId: string }>();
+  const navigate = useNavigate();
   const [audioState, setAudioState] = useState<AudioState>({
     isPlaying: false,
     selectedTrack: null,
@@ -39,6 +42,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
   });
 
   const positionInterval = useRef<number | null>(null);
+  const isNavigating = useRef<boolean>(false);
 
   /**
    * Starts tracking the audio position
@@ -72,27 +76,31 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
    */
   const handleTrackSelect = useCallback(
     (track: AudioFileRecord) => {
+      console.log("handleTrackSelect", track);
+
+      // Update URL to reflect the selected track
+      isNavigating.current = true;
+      navigate(`/track/${track.id}`);
+      // Reset flag after navigation completes
+      setTimeout(() => { isNavigating.current = false; }, 0);
+
       if (
         audioState.selectedTrack &&
         track.id === audioState.selectedTrack.id
       ) {
+        console.log("same track, skipping");
         setAudioState((state) => {
           return {
             ...state,
-            isPlaying: false,
+            position: 0,
           };
         });
       }
-      // Update URL with track ID
-      setSearchParams(
-        (prev) => {
-          prev.set("track", track.id);
-          return prev;
-        },
-        { replace: false },
-      );
+      console.log("old:", audioState.selectedTrack.id);
+      console.log("new:", track.id);
 
       setAudioState((prev) => {
+        console.log("cleaning up and recreating sound", prev);
         // Clean up previous sound
         cleanupSound(prev.sound);
 
@@ -105,15 +113,27 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
             }));
           },
           onEnd: () => {
-            // Check if there's a next track to play
-            if (catalog) {
-              setAudioState((state) => {
+            // Handle single track loop
+            setAudioState((state) => {
+              if (state.loop === "single" && state.sound) {
+                // Restart the same track
+                state.sound.seek(0);
+                state.sound.play();
+                return {
+                  ...state,
+                  position: 0,
+                };
+              }
+
+              // Check if there's a next track to play
+              if (catalog) {
                 const nextTrack = getNextTrack(
-                  track,
+                  state.selectedTrack,
                   catalog,
                   state.shuffle,
                   state.loop,
                 );
+                console.log("onend setting to next track", nextTrack);
                 if (nextTrack) {
                   // Auto-play next track
                   handleTrackSelect(nextTrack);
@@ -125,14 +145,14 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
                     isPlaying: false,
                   };
                 }
-              });
-            } else {
-              // No catalog, just stop
-              setAudioState((state) => ({
-                ...state,
-                isPlaying: false,
-              }));
-            }
+              } else {
+                // No catalog, just stop
+                return {
+                  ...state,
+                  isPlaying: false,
+                };
+              }
+            });
           },
         });
 
@@ -146,7 +166,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
         };
       });
     },
-    [catalog],
+    [catalog, audioState.selectedTrack],
   );
 
   /**
@@ -160,16 +180,11 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
       audioState.shuffle,
       audioState.loop,
     );
+    console.log("next track", nextTrack);
     if (nextTrack) {
       handleTrackSelect(nextTrack);
     }
-  }, [
-    audioState.selectedTrack,
-    audioState.shuffle,
-    audioState.loop,
-    catalog,
-    handleTrackSelect,
-  ]);
+  }, [audioState.selectedTrack, audioState.shuffle, audioState.loop, catalog]);
 
   /**
    * Plays the previous track in the catalog
@@ -234,11 +249,10 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
       return;
     }
 
-    const trackId = searchParams.get("track");
     let trackToLoad = catalog.songs[0]; // Default to first track
 
     if (trackId) {
-      // Try to load track from URL
+      // Try to load track from URL path parameter
       const track = catalog.songs.find((s) => s.id === trackId);
       if (track) {
         trackToLoad = track;
@@ -256,10 +270,21 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
           }));
         },
         onEnd: () => {
-          // Check if there's a next track to play
+          // Handle single track loop
           setAudioState((state) => {
+            if (state.loop === "single" && state.sound) {
+              // Restart the same track
+              state.sound.seek(0);
+              state.sound.play();
+              return {
+                ...state,
+                position: 0,
+              };
+            }
+
+            // Check if there's a next track to play
             const nextTrack = getNextTrack(
-              trackToLoad,
+              state.selectedTrack,
               catalog,
               state.shuffle,
               state.loop,
@@ -284,12 +309,17 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
       ...prev,
       ...initialState,
     }));
-  }, [catalog, searchParams, audioState.selectedTrack, handleTrackSelect]);
+  }, [catalog, trackId, audioState.selectedTrack, handleTrackSelect]);
 
   /**
    * Handle URL changes (browser back/forward navigation)
    */
   useEffect(() => {
+    // Skip if we're currently navigating (prevents circular calls)
+    if (isNavigating.current) {
+      return;
+    }
+
     if (!catalog || !catalog.songs || catalog.songs.length === 0) {
       return;
     }
@@ -299,29 +329,23 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
       return;
     }
 
-    const trackId = searchParams.get("track");
-
     // If URL has a track ID and it's different from current track
     if (trackId && trackId !== audioState.selectedTrack.id) {
       const track = catalog.songs.find((s) => s.id === trackId);
       if (track) {
-        // Load the track from URL
+        // Load the track from URL path parameter
         handleTrackSelect(track);
       }
     }
-  }, [searchParams, catalog, handleTrackSelect]);
+  }, [trackId, catalog, audioState.selectedTrack, handleTrackSelect]);
 
-  /**
-   * Cleanup on unmount
-   */
-  useEffect(() => {
+    useEffect(() => {
     return () => {
       cleanupSound(audioState.sound);
       stopPositionTracking();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
+    }, [])
   /**
    * Start/stop position tracking based on playback state
    */
@@ -331,6 +355,7 @@ export function useAudioPlayer({ catalog }: UseAudioPlayerProps): UseAudioPlayer
     } else {
       stopPositionTracking();
     }
+
   }, [
     audioState.sound,
     audioState.isPlaying,
