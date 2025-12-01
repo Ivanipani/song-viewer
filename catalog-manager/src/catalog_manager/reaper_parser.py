@@ -114,8 +114,12 @@ class ReaperParser:
                 # Parse audio file from SOURCE WAVE
                 elif in_item and '<SOURCE WAVE' in line:
                     # Next line should have the FILE path
-                    if line_num < len(lines):
-                        next_line = lines[line_num]  # line_num is already 1-indexed, so this gets next line
+                    # Note: line_num is 1-indexed (from enumerate starting at 1)
+                    # lines is 0-indexed, so lines[line_num] points to the next line
+                    next_line_index = line_num  # Points to next line due to 1-indexing
+
+                    if next_line_index < len(lines):  # Bounds check
+                        next_line = lines[next_line_index]
                         file_match = re.search(r'FILE\s+"([^"]+)"', next_line)
                         if file_match and current_track:
                             file_path = file_match.group(1)

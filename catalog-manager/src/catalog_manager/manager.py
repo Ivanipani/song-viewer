@@ -12,6 +12,14 @@ from pydantic import BaseModel, Field
 
 from .reaper_parser import ReaperParser
 from .audio_processor import AudioProcessor, AudioProcessingError
+from .utils import (
+    validate_song_exists, get_song_by_id, get_song_directory,
+    select_song_with_search, ValidationError, PathResolutionError,
+    safe_list_selection, load_yaml_safe, validate_directory_exists
+)
+
+# Default mixing directory (uses user's home directory)
+DEFAULT_MIXING_DIR = os.path.expanduser("~/Music/mixing")
 
 
 def sanitize_string(s: str) -> str:
@@ -98,11 +106,26 @@ class CatalogManager:
         """Load the catalog file, create if it doesn't exist."""
         if not self.catalog_path.exists():
             return Catalog(songs=[])
-        else:
-            with open(self.catalog_path, "r") as f:
-                catalog = yaml.safe_load(f) or {"songs": []}
-                # Convert dicts to Song models
-                return Catalog(songs=[Song(**song) for song in catalog["songs"]])
+
+        try:
+            catalog_data = load_yaml_safe(self.catalog_path, expected_keys=["songs"])
+
+            # Validate songs is a list
+            if not isinstance(catalog_data.get("songs"), list):
+                raise ValidationError("'songs' must be a list in catalog file")
+
+            # Convert dicts to Song models with validation
+            songs = []
+            for i, song_data in enumerate(catalog_data["songs"]):
+                try:
+                    songs.append(Song(**song_data))
+                except Exception as e:
+                    raise ValidationError(f"Invalid song at index {i} in catalog: {e}")
+
+            return Catalog(songs=songs)
+        except ValidationError as e:
+            # Convert to Click exception for proper CLI error handling
+            raise click.ClickException(f"Failed to load catalog from {self.catalog_path}: {e}")
 
     @property
     def songs(self) -> List[Song]:
@@ -240,26 +263,42 @@ def verify(ctx):
 
 
 @cli.command()
-@click.argument("song_id")
+@click.argument("song_id", required=False)
 @click.pass_context
-def edit_notes(ctx, song_id: str):
-    """Edit markdown notes for a song."""
+def edit_notes(ctx, song_id: Optional[str]):
+    """Edit markdown notes for a song.
+
+    If SONG_ID is not provided, you will be prompted to select interactively.
+    """
     catalog_manager = ctx.obj["catalog_manager"]
 
-    # Verify song exists
-    if not catalog_manager.contains(song_id):
-        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+    # Interactive selection if song_id not provided
+    if not song_id:
+        try:
+            song_id = select_song_with_search(catalog_manager)
+        except (ValidationError, click.Abort) as e:
+            raise click.ClickException(str(e))
 
-    # Create song directory structure
-    catalog_dir = ctx.obj["catalog_path"].parent
-    song_dir = catalog_dir / song_id
-    song_dir.mkdir(parents=True, exist_ok=True)
+    # Verify song exists
+    try:
+        validate_song_exists(catalog_manager, song_id)
+    except ValidationError as e:
+        raise click.ClickException(str(e))
+
+    # Get song directory using utility function
+    try:
+        song_dir = get_song_directory(ctx.obj["catalog_path"], song_id, create=True)
+    except PathResolutionError as e:
+        raise click.ClickException(str(e))
 
     # Create or open notes file
     notes_file = song_dir / "notes.md"
     if not notes_file.exists():
         # Create template
-        song = next(s for s in catalog_manager.songs if s.id == song_id)
+        try:
+            song = get_song_by_id(catalog_manager, song_id)
+        except ValidationError as e:
+            raise click.ClickException(str(e))
         notes_file.write_text(f"""# {song.title}
 
 ## Overview
@@ -280,20 +319,33 @@ What inspired this piece?
 
 
 @cli.command()
-@click.argument("song_id")
+@click.argument("song_id", required=False)
 @click.pass_context
-def edit_metadata(ctx, song_id: str):
-    """Edit extended metadata for a song."""
+def edit_metadata(ctx, song_id: Optional[str]):
+    """Edit extended metadata for a song.
+
+    If SONG_ID is not provided, you will be prompted to select interactively.
+    """
     catalog_manager = ctx.obj["catalog_manager"]
 
-    # Verify song exists
-    if not catalog_manager.contains(song_id):
-        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+    # Interactive selection if song_id not provided
+    if not song_id:
+        try:
+            song_id = select_song_with_search(catalog_manager)
+        except (ValidationError, click.Abort) as e:
+            raise click.ClickException(str(e))
 
-    # Create song directory structure
-    catalog_dir = ctx.obj["catalog_path"].parent
-    song_dir = catalog_dir / song_id
-    song_dir.mkdir(parents=True, exist_ok=True)
+    # Verify song exists
+    try:
+        validate_song_exists(catalog_manager, song_id)
+    except ValidationError as e:
+        raise click.ClickException(str(e))
+
+    # Get song directory using utility function
+    try:
+        song_dir = get_song_directory(ctx.obj["catalog_path"], song_id, create=True)
+    except PathResolutionError as e:
+        raise click.ClickException(str(e))
 
     # Create or open metadata file
     metadata_file = song_dir / "metadata.yml"
@@ -338,37 +390,65 @@ related_tracks: []
 
 
 @cli.command()
-@click.argument("song_id")
-@click.argument("project_path", type=click.Path(exists=True, path_type=Path))
+@click.argument("song_id", required=False)
+@click.argument("project_path", type=click.Path(exists=True, path_type=Path), required=False)
 @click.pass_context
-def link_project(ctx, song_id: str, project_path: Path):
+def link_project(ctx, song_id: Optional[str], project_path: Optional[Path]):
     """Link a catalog song to a REAPER mixing project.
 
     This command parses the REAPER project file and stores track information
     in the song's metadata.yml file without processing audio files yet.
+
+    If SONG_ID is not provided, you will be prompted to select interactively.
+    If PROJECT_PATH is not provided, you will be prompted to enter it.
 
     Example:
         catalog-manager link-project diciembre-29-en-casa-9594 "/Users/ivanperdomo/Music/mixing/Diciembre 29 en casa"
     """
     catalog_manager = ctx.obj["catalog_manager"]
 
+    # Interactive song selection if not provided
+    if not song_id:
+        try:
+            song_id = select_song_with_search(catalog_manager)
+        except (ValidationError, click.Abort) as e:
+            raise click.ClickException(str(e))
+
     # Verify song exists
-    if not catalog_manager.contains(song_id):
-        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+    try:
+        validate_song_exists(catalog_manager, song_id)
+    except ValidationError as e:
+        raise click.ClickException(str(e))
+
+    # Get project path if not provided
+    if not project_path:
+        project_path_str = click.prompt("Enter path to REAPER project directory")
+        project_path = Path(project_path_str)
+
+    # Validate project directory exists
+    try:
+        project_path = validate_directory_exists(project_path, "REAPER project directory")
+    except ValidationError as e:
+        raise click.ClickException(str(e))
 
     # Find the .RPP file in the project directory
-    project_path = project_path.resolve()
     rpp_files = list(project_path.glob("*.RPP"))
 
     if not rpp_files:
-        raise click.BadParameter(f"No .RPP file found in {project_path}")
+        raise click.ClickException(
+            f"No .RPP file found in {project_path}.\n"
+            f"Expected to find a REAPER project file with .RPP extension."
+        )
 
     if len(rpp_files) > 1:
         click.echo("Multiple .RPP files found. Please select one:")
         for i, rpp_file in enumerate(rpp_files, 1):
             click.echo(f"  {i}. {rpp_file.name}")
-        choice = click.prompt("Enter number", type=int)
-        rpp_file = rpp_files[choice - 1]
+        try:
+            index = safe_list_selection([f.name for f in rpp_files], "Enter number")
+            rpp_file = rpp_files[index]
+        except ValidationError as e:
+            raise click.ClickException(str(e))
     else:
         rpp_file = rpp_files[0]
 
@@ -412,9 +492,12 @@ def link_project(ctx, song_id: str, project_path: Path):
         }
         mixing_data["tracks"].append(track_data)
 
-    # Get song directory
-    catalog_dir = ctx.obj["catalog_path"].parent
-    song_dir = catalog_dir / song_id
+    # Get song directory using utility function
+    try:
+        song_dir = get_song_directory(ctx.obj["catalog_path"], song_id, create=True)
+    except PathResolutionError as e:
+        raise click.ClickException(str(e))
+
     metadata_file = song_dir / "metadata.yml"
 
     # Load existing metadata or create new
@@ -445,31 +528,48 @@ def link_project(ctx, song_id: str, project_path: Path):
 
 
 @cli.command()
-@click.argument("song_id")
+@click.argument("song_id", required=False)
 @click.option("--skip-conversion", is_flag=True, help="Skip audio conversion (for testing)")
-@click.option("--mixing-dir", type=click.Path(path_type=Path), default="/Users/ivanperdomo/Music/mixing", help="Path to mixing projects directory")
+@click.option("--mixing-dir", type=click.Path(path_type=Path), default=DEFAULT_MIXING_DIR, help="Path to mixing projects directory")
 @click.pass_context
-def process_stems(ctx, song_id: str, skip_conversion: bool, mixing_dir: Path):
+def process_stems(ctx, song_id: Optional[str], skip_conversion: bool, mixing_dir: Path):
     """Process track stems for a linked mixing project.
 
     Converts WAV files to MP3/OGG and generates waveform peaks for web display.
+
+    If SONG_ID is not provided, you will be prompted to select interactively.
 
     Example:
         catalog-manager process-stems diciembre-29-en-casa-9594
     """
     catalog_manager = ctx.obj["catalog_manager"]
 
-    # Verify song exists
-    if not catalog_manager.contains(song_id):
-        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+    # Interactive selection if song_id not provided
+    if not song_id:
+        try:
+            song_id = select_song_with_search(catalog_manager)
+        except (ValidationError, click.Abort) as e:
+            raise click.ClickException(str(e))
 
-    # Get song directory and metadata
-    catalog_dir = ctx.obj["catalog_path"].parent
-    song_dir = catalog_dir / song_id
+    # Verify song exists
+    try:
+        validate_song_exists(catalog_manager, song_id)
+    except ValidationError as e:
+        raise click.ClickException(str(e))
+
+    # Get song directory using utility function
+    try:
+        song_dir = get_song_directory(ctx.obj["catalog_path"], song_id, create=False)
+    except PathResolutionError as e:
+        raise click.ClickException(str(e))
+
     metadata_file = song_dir / "metadata.yml"
 
     if not metadata_file.exists():
-        raise click.BadParameter(f"No metadata file found for {song_id}")
+        raise click.ClickException(
+            f"No metadata file found for {song_id}.\n"
+            f"Run 'catalog-manager link-project {song_id} <project-path>' first"
+        )
 
     # Load metadata
     with open(metadata_file, 'r') as f:
@@ -477,17 +577,24 @@ def process_stems(ctx, song_id: str, skip_conversion: bool, mixing_dir: Path):
 
     # Check if mixing data exists
     if "mixing" not in metadata:
-        raise click.BadParameter(
-            f"No mixing project linked for {song_id}. "
+        raise click.ClickException(
+            f"No mixing project linked for {song_id}.\n"
             f"Run 'catalog-manager link-project {song_id} <project-path>' first"
         )
 
     mixing_data = metadata["mixing"]
     project_path = mixing_dir / mixing_data["project_path"]
 
-    if not project_path.exists():
-        raise click.BadParameter(
-            f"Mixing project directory not found: {project_path}"
+    # Validate mixing project directory exists
+    try:
+        project_path = validate_directory_exists(project_path, "Mixing project directory")
+    except ValidationError as e:
+        raise click.ClickException(
+            f"{e}\n"
+            f"Expected project at: {project_path}\n"
+            f"Configured in metadata: {mixing_data['project_path']}\n"
+            f"Mixing directory: {mixing_dir}\n"
+            f"You may need to specify --mixing-dir if projects are in a different location."
         )
 
     # Create tracks output directory
@@ -579,18 +686,33 @@ def process_stems(ctx, song_id: str, skip_conversion: bool, mixing_dir: Path):
 
 
 @cli.command()
-@click.argument("song_id")
+@click.argument("song_id", required=False)
 @click.pass_context
-def show_notes(ctx, song_id: str):
-    """Display notes and metadata for a song."""
+def show_notes(ctx, song_id: Optional[str]):
+    """Display notes and metadata for a song.
+
+    If SONG_ID is not provided, you will be prompted to select interactively.
+    """
     catalog_manager = ctx.obj["catalog_manager"]
 
-    # Verify song exists
-    if not catalog_manager.contains(song_id):
-        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+    # Interactive selection if song_id not provided
+    if not song_id:
+        try:
+            song_id = select_song_with_search(catalog_manager)
+        except (ValidationError, click.Abort) as e:
+            raise click.ClickException(str(e))
 
-    catalog_dir = ctx.obj["catalog_path"].parent
-    song_dir = catalog_dir / song_id
+    # Verify song exists
+    try:
+        validate_song_exists(catalog_manager, song_id)
+    except ValidationError as e:
+        raise click.ClickException(str(e))
+
+    # Get song directory using utility function
+    try:
+        song_dir = get_song_directory(ctx.obj["catalog_path"], song_id, create=False)
+    except PathResolutionError as e:
+        raise click.ClickException(str(e))
 
     # Display notes
     notes_file = song_dir / "notes.md"
