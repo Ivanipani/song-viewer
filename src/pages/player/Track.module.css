@@ -13,7 +13,7 @@
 }
 
 .track:hover {
-  background-color: light-dark(var(--mantine-color-warmBeige-2), var(--mantine-color-warmGray-7));
+  background-color: light-dark(var(--mantine-color-coolSlate-2), var(--mantine-color-coolGray-7));
 }
 
 .track:active {
@@ -28,7 +28,7 @@
   flex-direction: row;
   align-items: center;
   width: 100%;
-  background-color: light-dark(var(--mantine-color-warmBrown-2), var(--mantine-color-warmBrown-8));
+  background-color: light-dark(var(--mantine-color-coolSteel-2), var(--mantine-color-coolSteel-8));
   transition: all 0.2s ease-in-out;
   cursor: pointer;
   border: 1px solid

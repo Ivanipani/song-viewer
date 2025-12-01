@@ -1,57 +1,57 @@
 import { createTheme, MantineColorsTuple } from '@mantine/core';
 
-// Warm Beige - Primary neutral palette for backgrounds and surfaces
-const warmBeige: MantineColorsTuple = [
-  '#FAF8F5',  // 0 - Almost white, soft cream
-  '#F5F1EB',  // 1 - Very light beige
-  '#EBE4D9',  // 2 - Light warm beige
-  '#DDD3C4',  // 3 - Soft tan
-  '#C9BAAA',  // 4 - Medium beige
-  '#B5A593',  // 5 - Warm taupe (base)
-  '#9A8A76',  // 6 - Deeper taupe
-  '#7D6F5D',  // 7 - Warm brown-gray
-  '#5F5447',  // 8 - Dark warm gray
-  '#403A32',  // 9 - Deep brown-gray
+// Cool Slate - Primary neutral palette for backgrounds and surfaces
+const coolSlate: MantineColorsTuple = [
+  '#F8FAFB',  // 0 - Almost white, soft blue-gray
+  '#F1F4F7',  // 1 - Very light slate
+  '#E4E9EF',  // 2 - Light cool slate
+  '#D1DBE5',  // 3 - Soft blue-gray
+  '#B8C5D4',  // 4 - Medium slate
+  '#9DB0C4',  // 5 - Cool slate (base)
+  '#7D8FA5',  // 6 - Deeper slate
+  '#5E7389',  // 7 - Steel blue-gray
+  '#45566A',  // 8 - Dark cool gray
+  '#2F3D4D',  // 9 - Deep slate-blue
 ];
 
-// Warm Brown - Primary accent color for interactive elements
-const warmBrown: MantineColorsTuple = [
-  '#F9F6F2',  // 0 - Lightest cream
-  '#F0E8DD',  // 1 - Very light brown
-  '#E3D4C0',  // 2 - Light warm tan
-  '#D4BFA2',  // 3 - Soft caramel
-  '#C0A67E',  // 4 - Medium tan
-  '#A88B5F',  // 5 - Warm caramel (base)
-  '#8E7249',  // 6 - Rich brown
-  '#735A38',  // 7 - Deep caramel
-  '#584428',  // 8 - Dark brown
-  '#3E2F1C',  // 9 - Very dark brown
+// Cool Steel - Primary accent color for interactive elements
+const coolSteel: MantineColorsTuple = [
+  '#F7F9FA',  // 0 - Lightest blue-gray
+  '#ECF1F5',  // 1 - Very light steel
+  '#DCE5ED',  // 2 - Light cool blue
+  '#C8D8E5',  // 3 - Soft steel blue
+  '#AEC3D6',  // 4 - Medium steel
+  '#8FA9C3',  // 5 - Cool steel (base)
+  '#6E8BA8',  // 6 - Rich steel blue
+  '#516F8D',  // 7 - Deep steel
+  '#395571',  // 8 - Dark steel blue
+  '#263D55',  // 9 - Very dark steel
 ];
 
-// Warm Gray - Supporting neutral for text and borders
-const warmGray: MantineColorsTuple = [
-  '#FAFAF9',  // 0 - Near white
-  '#F5F4F2',  // 1 - Very light gray
-  '#E8E6E3',  // 2 - Light warm gray
-  '#D4D1CC',  // 3 - Soft gray
-  '#BEBAB3',  // 4 - Medium warm gray
-  '#A39E96',  // 5 - Warm gray (base)
-  '#88837B',  // 6 - Deeper gray
-  '#6D6962',  // 7 - Dark warm gray
-  '#534F4A',  // 8 - Very dark gray
-  '#3A3835',  // 9 - Almost black warm
+// Cool Gray - Supporting neutral for text and borders
+const coolGray: MantineColorsTuple = [
+  '#F9FAFB',  // 0 - Near white with blue hint
+  '#F3F5F7',  // 1 - Very light cool gray
+  '#E6E9ED',  // 2 - Light blue-gray
+  '#D3D8DF',  // 3 - Soft cool gray
+  '#BCC3CD',  // 4 - Medium cool gray
+  '#A2ABB8',  // 5 - Cool gray (base)
+  '#858FA0',  // 6 - Deeper cool gray
+  '#687487',  // 7 - Dark blue-gray
+  '#4F5968',  // 8 - Very dark cool gray
+  '#383F4C',  // 9 - Almost black with blue tint
 ];
 
 export const theme = createTheme({
-  // Custom warm neutral color palettes
+  // Custom cool neutral color palettes
   colors: {
-    warmBeige,
-    warmBrown,
-    warmGray,
+    coolSlate,
+    coolSteel,
+    coolGray,
   },
 
   // Primary color for interactive elements
-  primaryColor: 'warmBrown',
+  primaryColor: 'coolSteel',
 
   breakpoints: {
     xs: '30em',   // 480px - Large phones

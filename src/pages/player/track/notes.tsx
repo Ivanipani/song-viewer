@@ -138,8 +138,8 @@ export default function NotesView() {
                     ff="monospace"
                     bg={
                       computedColorScheme === "dark"
-                        ? "warmGray.8"
-                        : "warmBeige.2"
+                        ? "coolGray.8"
+                        : "coolSlate.2"
                     }
                     p="2px 6px"
                     style={{ borderRadius: 4 }}
@@ -152,12 +152,12 @@ export default function NotesView() {
                     p="sm"
                     bg={
                       computedColorScheme === "dark"
-                        ? "warmGray.9"
-                        : "warmBeige.1"
+                        ? "coolGray.9"
+                        : "coolSlate.1"
                     }
                     mb="sm"
                     style={{
-                      borderLeft: "4px solid var(--mantine-color-warmBrown-6)",
+                      borderLeft: "4px solid var(--mantine-color-coolSteel-6)",
                     }}
                   >
                     {children}
