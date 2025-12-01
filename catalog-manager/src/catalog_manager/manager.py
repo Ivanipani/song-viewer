@@ -268,7 +268,7 @@ def verify(ctx):
 def edit_notes(ctx, song_id: Optional[str]):
     """Edit markdown notes for a song.
 
-    If SONG_ID is not provided, you will be prompted to select interactively.
+    If SONG_ID is not provided, fzf will open for interactive selection.
     """
     catalog_manager = ctx.obj["catalog_manager"]
 
@@ -324,7 +324,7 @@ What inspired this piece?
 def edit_metadata(ctx, song_id: Optional[str]):
     """Edit extended metadata for a song.
 
-    If SONG_ID is not provided, you will be prompted to select interactively.
+    If SONG_ID is not provided, fzf will open for interactive selection.
     """
     catalog_manager = ctx.obj["catalog_manager"]
 
@@ -399,7 +399,7 @@ def link_project(ctx, song_id: Optional[str], project_path: Optional[Path]):
     This command parses the REAPER project file and stores track information
     in the song's metadata.yml file without processing audio files yet.
 
-    If SONG_ID is not provided, you will be prompted to select interactively.
+    If SONG_ID is not provided, fzf will open for interactive selection.
     If PROJECT_PATH is not provided, you will be prompted to enter it.
 
     Example:
@@ -537,7 +537,7 @@ def process_stems(ctx, song_id: Optional[str], skip_conversion: bool, mixing_dir
 
     Converts WAV files to MP3/OGG and generates waveform peaks for web display.
 
-    If SONG_ID is not provided, you will be prompted to select interactively.
+    If SONG_ID is not provided, fzf will open for interactive selection.
 
     Example:
         catalog-manager process-stems diciembre-29-en-casa-9594
@@ -691,7 +691,7 @@ def process_stems(ctx, song_id: Optional[str], skip_conversion: bool, mixing_dir
 def show_notes(ctx, song_id: Optional[str]):
     """Display notes and metadata for a song.
 
-    If SONG_ID is not provided, you will be prompted to select interactively.
+    If SONG_ID is not provided, fzf will open for interactive selection.
     """
     catalog_manager = ctx.obj["catalog_manager"]
 

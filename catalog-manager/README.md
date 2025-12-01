@@ -9,6 +9,29 @@ A CLI tool for managing a music catalog with support for song metadata, file ver
 - Edit markdown notes and extended metadata for each song
 - Link REAPER mixing projects and parse track information
 - Process audio stems (WAV to MP3/OGG conversion with waveform peaks)
+- **Interactive song selection with fzf** - fuzzy find songs without memorizing IDs
+
+## Requirements
+
+- Python >= 3.8
+- [fzf](https://github.com/junegunn/fzf) - for interactive song selection
+  - **macOS**: `brew install fzf`
+  - **Linux**: `sudo apt install fzf` (or use your package manager)
+  - **Windows**: See [fzf installation guide](https://github.com/junegunn/fzf#installation)
+
+## Quick Start
+
+All commands that require a song ID support interactive selection with fzf. Simply omit the song ID and fzf will open for fuzzy finding:
+
+```bash
+# Interactive selection (opens fzf)
+catalog-manager edit-notes
+catalog-manager show-notes
+catalog-manager process-stems
+
+# Or use the song ID directly
+catalog-manager edit-notes diciembre-29-en-casa-9594
+```
 
 ## Usage
 

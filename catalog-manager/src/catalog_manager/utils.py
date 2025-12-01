@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 import click
 import yaml
+import subprocess
+import shutil
 
 
 # ============================================================================
@@ -283,7 +285,7 @@ def fuzzy_search_songs(catalog_manager, query: str, limit: int = 5) -> List:
 
 
 def select_song_with_search(catalog_manager) -> str:
-    """Select a song with optional search functionality.
+    """Select a song using fzf for fuzzy finding.
 
     Args:
         catalog_manager: CatalogManager instance
@@ -293,46 +295,71 @@ def select_song_with_search(catalog_manager) -> str:
 
     Raises:
         click.Abort: If user cancels
-        ValidationError: If catalog is empty
+        ValidationError: If catalog is empty or fzf not available
     """
     if not catalog_manager.songs:
         raise ValidationError("Catalog is empty. Add songs with 'catalog-manager add' first.")
 
-    # Offer search for larger catalogs
-    if len(catalog_manager.songs) > 10:
-        if click.confirm("Would you like to search for a song?", default=True):
-            while True:
-                query = click.prompt("Search (title, artist, or ID)")
-                matches = fuzzy_search_songs(catalog_manager, query)
+    # Check if fzf is available
+    if not shutil.which("fzf"):
+        raise ValidationError(
+            "fzf is not installed. Please install it:\n"
+            "  macOS: brew install fzf\n"
+            "  Linux: sudo apt install fzf (or use your package manager)\n"
+            "  Or visit: https://github.com/junegunn/fzf"
+        )
 
-                if not matches:
-                    click.echo("No matches found. Try again.")
-                    if not click.confirm("Search again?", default=True):
-                        break
-                    continue
+    # Prepare song list for fzf
+    # Format: "Title - Artist (ID: song-id)"
+    song_lines = []
+    for song in catalog_manager.songs:
+        line = f"{song.title} - {song.artist} (ID: {song.id})"
+        song_lines.append(line)
 
-                if len(matches) == 1:
-                    song = matches[0]
-                    if click.confirm(f"Use '{song.title}' by {song.artist}?", default=True):
-                        return song.id
-                else:
-                    click.echo(f"\nFound {len(matches)} match(es):")
-                    # Create temporary manager-like object with filtered songs
-                    class FilteredManager:
-                        def __init__(self, songs):
-                            self.songs = songs
+    # Join all songs with newlines for fzf input
+    songs_input = "\n".join(song_lines)
 
-                    try:
-                        return interactive_song_selection(
-                            FilteredManager(matches),
-                            "Select from search results"
-                        )
-                    except click.Abort:
-                        if not click.confirm("Search again?", default=True):
-                            break
+    try:
+        # Run fzf with enhanced options
+        result = subprocess.run(
+            [
+                "fzf",
+                "--prompt=Select song > ",
+                "--height=40%",
+                "--reverse",
+                "--border=rounded",
+                "--info=inline",
+                "--pointer=▶",
+                "--marker=✓",
+                "--ansi",
+                "--color=pointer:cyan,marker:green,prompt:yellow"
+            ],
+            input=songs_input,
+            text=True,
+            capture_output=True,
+            check=False
+        )
 
-    # Default: show all songs
-    return interactive_song_selection(catalog_manager, "Select a song")
+        if result.returncode != 0:
+            # User cancelled (ESC or Ctrl+C)
+            raise click.Abort()
+
+        # Parse the selected line to extract song ID
+        selected_line = result.stdout.strip()
+        if not selected_line:
+            raise click.Abort()
+
+        # Extract ID from format: "Title - Artist (ID: song-id)"
+        import re
+        match = re.search(r'\(ID: ([^)]+)\)$', selected_line)
+        if not match:
+            raise ValidationError(f"Could not parse song ID from selection: {selected_line}")
+
+        song_id = match.group(1)
+        return song_id
+
+    except subprocess.SubprocessError as e:
+        raise ValidationError(f"Error running fzf: {e}")
 
 
 # ============================================================================
