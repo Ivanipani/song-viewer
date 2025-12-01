@@ -135,7 +135,7 @@ export default function TrackLayout({}: Route.ComponentProps) {
           data={[
             { label: "Notes", value: "notes" },
             // { label: "Chords", value: "chords" },
-            // { label: "Tracks", value: "tracks" },
+            { label: "Tracks", value: "tracks" },
           ]}
         />
       </Paper>

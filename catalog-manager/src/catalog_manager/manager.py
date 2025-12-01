@@ -7,8 +7,11 @@ from pathlib import Path
 from datetime import datetime
 import os
 import subprocess
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
+
+from .reaper_parser import ReaperParser
+from .audio_processor import AudioProcessor, AudioProcessingError
 
 
 def sanitize_string(s: str) -> str:
@@ -33,7 +36,7 @@ class Song(BaseModel):
     id: str
     title: str
     artist: str
-    filename: str
+    filename: str = Field(default="master.mp3")
     checksum: str = Field(default="")
     tags: List[str] = Field(default_factory=list)
     added_date: str = Field(default_factory=lambda: datetime.now().isoformat())
@@ -247,14 +250,13 @@ def edit_notes(ctx, song_id: str):
     if not catalog_manager.contains(song_id):
         raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
 
-    # Create tracks directory structure
+    # Create song directory structure
     catalog_dir = ctx.obj["catalog_path"].parent
-    tracks_dir = catalog_dir / "tracks"
-    track_dir = tracks_dir / song_id
-    track_dir.mkdir(parents=True, exist_ok=True)
+    song_dir = catalog_dir / song_id
+    song_dir.mkdir(parents=True, exist_ok=True)
 
     # Create or open notes file
-    notes_file = track_dir / "notes.md"
+    notes_file = song_dir / "notes.md"
     if not notes_file.exists():
         # Create template
         song = next(s for s in catalog_manager.songs if s.id == song_id)
@@ -288,14 +290,13 @@ def edit_metadata(ctx, song_id: str):
     if not catalog_manager.contains(song_id):
         raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
 
-    # Create tracks directory structure
+    # Create song directory structure
     catalog_dir = ctx.obj["catalog_path"].parent
-    tracks_dir = catalog_dir / "tracks"
-    track_dir = tracks_dir / song_id
-    track_dir.mkdir(parents=True, exist_ok=True)
+    song_dir = catalog_dir / song_id
+    song_dir.mkdir(parents=True, exist_ok=True)
 
     # Create or open metadata file
-    metadata_file = track_dir / "metadata.yml"
+    metadata_file = song_dir / "metadata.yml"
     if not metadata_file.exists():
         # Create template
         default_metadata = """# Extended Metadata
@@ -338,6 +339,247 @@ related_tracks: []
 
 @cli.command()
 @click.argument("song_id")
+@click.argument("project_path", type=click.Path(exists=True, path_type=Path))
+@click.pass_context
+def link_project(ctx, song_id: str, project_path: Path):
+    """Link a catalog song to a REAPER mixing project.
+
+    This command parses the REAPER project file and stores track information
+    in the song's metadata.yml file without processing audio files yet.
+
+    Example:
+        catalog-manager link-project diciembre-29-en-casa-9594 "/Users/ivanperdomo/Music/mixing/Diciembre 29 en casa"
+    """
+    catalog_manager = ctx.obj["catalog_manager"]
+
+    # Verify song exists
+    if not catalog_manager.contains(song_id):
+        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+
+    # Find the .RPP file in the project directory
+    project_path = project_path.resolve()
+    rpp_files = list(project_path.glob("*.RPP"))
+
+    if not rpp_files:
+        raise click.BadParameter(f"No .RPP file found in {project_path}")
+
+    if len(rpp_files) > 1:
+        click.echo("Multiple .RPP files found. Please select one:")
+        for i, rpp_file in enumerate(rpp_files, 1):
+            click.echo(f"  {i}. {rpp_file.name}")
+        choice = click.prompt("Enter number", type=int)
+        rpp_file = rpp_files[choice - 1]
+    else:
+        rpp_file = rpp_files[0]
+
+    click.echo(f"Parsing REAPER project: {rpp_file.name}")
+
+    # Parse the REAPER project
+    parser = ReaperParser(rpp_file)
+    tracks = parser.parse()
+
+    if not tracks:
+        click.echo("Warning: No tracks with audio found in project", err=True)
+        return
+
+    click.echo(f"\nFound {len(tracks)} track(s) with audio:")
+    for i, track in enumerate(tracks, 1):
+        click.echo(f"  {i}. {track.name} ({track.color_hex}) - {len(track.audio_files)} audio file(s)")
+
+    # Prepare mixing metadata
+    mixing_data = {
+        "project_path": project_path.name,  # Store relative to mixing directory
+        "project_file": rpp_file.name,
+        "last_processed": datetime.now().isoformat(),
+        "tracks": []
+    }
+
+    # Convert tracks to metadata format
+    for order, track in enumerate(tracks):
+        # Generate track ID from track name
+        track_id = sanitize_string(track.name)
+
+        track_data = {
+            "id": track_id,
+            "name": track.name,
+            "color": track.color_hex,
+            "order": order,
+            "audio_files": [],  # Will be populated by process-stems
+            "peaks_url": "",    # Will be populated by process-stems
+            "muted": False,
+            "solo": False,
+            "source_files": track.audio_files  # Store original source file paths
+        }
+        mixing_data["tracks"].append(track_data)
+
+    # Get song directory
+    catalog_dir = ctx.obj["catalog_path"].parent
+    song_dir = catalog_dir / song_id
+    metadata_file = song_dir / "metadata.yml"
+
+    # Load existing metadata or create new
+    if metadata_file.exists():
+        with open(metadata_file, 'r') as f:
+            metadata = yaml.safe_load(f) or {}
+    else:
+        # Create default metadata structure
+        metadata = {
+            "performance": {},
+            "recording": {},
+            "theory": {},
+            "tags": [],
+            "inspiration": "",
+            "related_tracks": []
+        }
+
+    # Add mixing data
+    metadata["mixing"] = mixing_data
+
+    # Save updated metadata
+    with open(metadata_file, 'w') as f:
+        yaml.dump(metadata, f, sort_keys=False, allow_unicode=True, default_flow_style=False)
+
+    click.echo(f"\n✓ Successfully linked project to {song_id}")
+    click.echo(f"  Metadata saved to: {metadata_file}")
+    click.echo(f"\nNext step: Run 'catalog-manager process-stems {song_id}' to convert audio files")
+
+
+@cli.command()
+@click.argument("song_id")
+@click.option("--skip-conversion", is_flag=True, help="Skip audio conversion (for testing)")
+@click.option("--mixing-dir", type=click.Path(path_type=Path), default="/Users/ivanperdomo/Music/mixing", help="Path to mixing projects directory")
+@click.pass_context
+def process_stems(ctx, song_id: str, skip_conversion: bool, mixing_dir: Path):
+    """Process track stems for a linked mixing project.
+
+    Converts WAV files to MP3/OGG and generates waveform peaks for web display.
+
+    Example:
+        catalog-manager process-stems diciembre-29-en-casa-9594
+    """
+    catalog_manager = ctx.obj["catalog_manager"]
+
+    # Verify song exists
+    if not catalog_manager.contains(song_id):
+        raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
+
+    # Get song directory and metadata
+    catalog_dir = ctx.obj["catalog_path"].parent
+    song_dir = catalog_dir / song_id
+    metadata_file = song_dir / "metadata.yml"
+
+    if not metadata_file.exists():
+        raise click.BadParameter(f"No metadata file found for {song_id}")
+
+    # Load metadata
+    with open(metadata_file, 'r') as f:
+        metadata = yaml.safe_load(f) or {}
+
+    # Check if mixing data exists
+    if "mixing" not in metadata:
+        raise click.BadParameter(
+            f"No mixing project linked for {song_id}. "
+            f"Run 'catalog-manager link-project {song_id} <project-path>' first"
+        )
+
+    mixing_data = metadata["mixing"]
+    project_path = mixing_dir / mixing_data["project_path"]
+
+    if not project_path.exists():
+        raise click.BadParameter(
+            f"Mixing project directory not found: {project_path}"
+        )
+
+    # Create tracks output directory
+    tracks_dir = song_dir / "tracks"
+    tracks_dir.mkdir(parents=True, exist_ok=True)
+
+    click.echo(f"Processing stems for: {song_id}")
+    click.echo(f"Project directory: {project_path}")
+    click.echo(f"Output directory: {tracks_dir}")
+    click.echo()
+
+    if skip_conversion:
+        click.echo("⚠️  Skipping audio conversion (--skip-conversion flag)")
+        return
+
+    # Initialize audio processor
+    try:
+        processor = AudioProcessor()
+    except AudioProcessingError as e:
+        raise click.ClickException(str(e))
+
+    # Process each track
+    processed_count = 0
+    total_tracks = len(mixing_data["tracks"])
+
+    for track_idx, track_data in enumerate(mixing_data["tracks"], 1):
+        track_id = track_data["id"]
+        track_name = track_data["name"]
+        source_files = track_data.get("source_files", [])
+
+        click.echo(f"[{track_idx}/{total_tracks}] Processing: {track_name}")
+
+        if not source_files:
+            click.echo("  ⚠️  No source files found, skipping")
+            continue
+
+        # Use the first source file for now
+        # (In a more complex implementation, you might want to mix multiple files)
+        source_file_rel = source_files[0]
+        source_file = project_path / source_file_rel
+
+        if not source_file.exists():
+            click.echo(f"  ✗ Source file not found: {source_file_rel}", err=True)
+            continue
+
+        try:
+            # Process the track
+            mp3_path, ogg_path, peaks_path = processor.process_track(
+                input_file=source_file,
+                output_dir=tracks_dir,
+                track_id=track_id,
+                bitrate=128,  # As per plan: 128 kbps
+                ogg_quality=4  # As per plan: quality 4
+            )
+
+            # Update track data with output file URLs
+            track_data["audio_files"] = [
+                {"url": f"tracks/{mp3_path.name}", "format": "mp3"},
+                {"url": f"tracks/{ogg_path.name}", "format": "ogg"}
+            ]
+            track_data["peaks_url"] = f"tracks/{peaks_path.name}"
+
+            # Show file sizes
+            mp3_size = processor.get_file_size_mb(mp3_path)
+            ogg_size = processor.get_file_size_mb(ogg_path)
+            peaks_size = processor.get_file_size_mb(peaks_path)
+
+            click.echo(f"  ✓ MP3:   {mp3_path.name} ({mp3_size:.2f} MB)")
+            click.echo(f"  ✓ OGG:   {ogg_path.name} ({ogg_size:.2f} MB)")
+            click.echo(f"  ✓ Peaks: {peaks_path.name} ({peaks_size:.2f} MB)")
+
+            processed_count += 1
+
+        except AudioProcessingError as e:
+            click.echo(f"  ✗ Error processing track: {e}", err=True)
+            continue
+
+    # Update last_processed timestamp
+    mixing_data["last_processed"] = datetime.now().isoformat()
+
+    # Save updated metadata
+    with open(metadata_file, 'w') as f:
+        yaml.dump(metadata, f, sort_keys=False, allow_unicode=True, default_flow_style=False)
+
+    click.echo()
+    click.echo(f"✓ Successfully processed {processed_count}/{total_tracks} track(s)")
+    click.echo(f"  Metadata updated: {metadata_file}")
+    click.echo(f"  Track files saved to: {tracks_dir}")
+
+
+@cli.command()
+@click.argument("song_id")
 @click.pass_context
 def show_notes(ctx, song_id: str):
     """Display notes and metadata for a song."""
@@ -348,11 +590,10 @@ def show_notes(ctx, song_id: str):
         raise click.BadParameter(f"Song with ID '{song_id}' not found in catalog")
 
     catalog_dir = ctx.obj["catalog_path"].parent
-    tracks_dir = catalog_dir / "tracks"
-    track_dir = tracks_dir / song_id
+    song_dir = catalog_dir / song_id
 
     # Display notes
-    notes_file = track_dir / "notes.md"
+    notes_file = song_dir / "notes.md"
     if notes_file.exists():
         click.echo("\n" + "=" * 80)
         click.echo("NOTES")
@@ -362,7 +603,7 @@ def show_notes(ctx, song_id: str):
         click.echo(f"\nNo notes file found at {notes_file}")
 
     # Display metadata
-    metadata_file = track_dir / "metadata.yml"
+    metadata_file = song_dir / "metadata.yml"
     if metadata_file.exists():
         click.echo("\n" + "=" * 80)
         click.echo("METADATA")

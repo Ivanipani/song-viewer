@@ -29,3 +29,5 @@ build
 CLAUDE.md
 *.mp3
 *.png
+*.ogg
+catalog-manager/catalog/**/*.json
