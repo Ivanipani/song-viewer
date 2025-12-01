@@ -27,4 +27,5 @@ dist-ssr
 build
 .claude
 CLAUDE.md
-
+*.mp3
+*.png

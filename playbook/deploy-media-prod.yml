@@ -2,79 +2,38 @@
 - name: Deploy media to web server
   hosts: webservers
   vars:
-    media_path_src: "/Users/ivanperdomo/song-viewer/canciones"
-    media_path_dest: "/public/song-viewer/canciones"
-    photos_path_src: "/Users/ivanperdomo/song-viewer/fotos"
-    photos_path_dest: "/public/song-viewer/fotos"
-    track_path_src: "../catalog-manager/catalog/tracks"
-    track_path_dest: /public/song-viewer/canciones/tracks
+    catalog_path_src: "{{ '../catalog-manager/catalog' | realpath}}"
+    catalog_path_dest: /public/song-viewer
   tasks:
-    - name: Create media directory
+    - name: Create catalog directory
       ansible.builtin.file:
-        path: "{{ media_path_dest }}"
+        path: "{{ catalog_path_dest }}"
         state: directory
         mode: '0777'
         owner: www-data
         group: www-data
       become: true
-    - name: Create photos directory
-      ansible.builtin.file:
-        path: "{{ photos_path_dest }}"
-        state: directory
-        mode: '0777'
-        owner: www-data
+
+    - name: Copy media files to server
+      ansible.builtin.copy:
+        src: "{{ catalog_path_src }}/"
+        dest: "{{ catalog_path_dest }}"
         group: www-data
-      become: true
-    - name: Copy audio files to server
-      ansible.builtin.copy:
-        src: "{{ media_path_src }}/"
-        dest: "{{ media_path_dest }}"
-      become: true
-    - name: Copy photos to server
-      ansible.builtin.copy:
-        src: "{{ photos_path_src }}/"
-        dest: "{{ photos_path_dest }}"
+        owner: www-data
       become: true
 
-    - name: Create tracks directory
-      ansible.builtin.file:
-        path: "{{ track_path_dest }}"
-        state: directory
-        mode: '0755'
-        owner: www-data
-        group: www-data
-      become: true
-
-    - name: Copy tracks directory to server
-      ansible.builtin.copy:
-        src: "{{ track_path_src }}/"
-        dest: "{{ track_path_dest }}"
-      become: true
-
-    - name: "Find all files and folders in {{ media_path_dest }}"
-      find:
-        path: "{{ media_path_dest }}"
-        file_type: any
-        recurse: true
-      register: folder_contents_songstore
-    - name: Find all files and folders in {{ photos_path_dest }}
-      find:
-        path: "{{ photos_path_dest }}"
-        file_type: any
-        recurse: true
-      register: folder_contents_photos
-    - name: Transfer ownwership of songstore files to www-data
-      ansible.builtin.file:
-        path: "{{ item.path }}"
-        owner: www-data
-        group: www-data
-      loop: "{{ folder_contents_songstore.files }}"
-      become: true
-    - name: Transfer ownwership of photos files to www-data
-      ansible.builtin.file:
-        path: "{{ item.path }}"
-        owner: www-data
-        group: www-data
-      loop: "{{ folder_contents_photos.files }}"
-      become: true
+    # - name: "Find all files and folders in {{ catalog_path_dest }}"
+    #   find:
+    #     path: "{{ catalog_path_dest }}"
+    #     file_type: any
+    #     recurse: true
+    #   register: folder_contents_media
+    #
+    # - name: Transfer ownership of media files to www-data
+    #   ansible.builtin.file:
+    #     path: "{{ item.path }}"
+    #     owner: www-data
+    #     group: www-data
+    #   loop: "{{ folder_contents_media.files }}"
+    #   become: true
 
