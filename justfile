@@ -39,3 +39,8 @@ run-single:
     echo "Running playbook: $PLAYBOOK"
     ansible-playbook "$PLAYBOOK"
 
+# Run catalog-manager
+[working-directory: 'catalog-manager']
+catalog-manager *args:
+    uv run catalog-manager {{args}}
+

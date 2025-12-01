@@ -7,12 +7,13 @@ This module provides wrappers around FFmpeg and audiowaveform for:
 
 from pathlib import Path
 import subprocess
-from typing import Optional, Tuple
+from typing import Tuple
 import shutil
 
 
 class AudioProcessingError(Exception):
     """Raised when audio processing fails."""
+
     pass
 
 
@@ -40,7 +41,7 @@ class AudioProcessor:
         input_file: Path,
         output_file: Path,
         bitrate: int = 128,
-        sample_rate: int = 44100
+        sample_rate: int = 44100,
     ) -> bool:
         """Convert audio file to MP3 format.
 
@@ -58,21 +59,20 @@ class AudioProcessor:
         """
         cmd = [
             "ffmpeg",
-            "-i", str(input_file),
-            "-codec:a", "libmp3lame",
-            "-b:a", f"{bitrate}k",
-            "-ar", str(sample_rate),
+            "-i",
+            str(input_file),
+            "-codec:a",
+            "libmp3lame",
+            "-b:a",
+            f"{bitrate}k",
+            "-ar",
+            str(sample_rate),
             "-y",  # Overwrite output file
-            str(output_file)
+            str(output_file),
         ]
 
         try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             return True
         except subprocess.CalledProcessError as e:
             raise AudioProcessingError(
@@ -84,7 +84,7 @@ class AudioProcessor:
         input_file: Path,
         output_file: Path,
         quality: int = 4,
-        sample_rate: int = 44100
+        sample_rate: int = 44100,
     ) -> bool:
         """Convert audio file to OGG/Vorbis format.
 
@@ -102,21 +102,20 @@ class AudioProcessor:
         """
         cmd = [
             "ffmpeg",
-            "-i", str(input_file),
-            "-codec:a", "libvorbis",
-            "-q:a", str(quality),
-            "-ar", str(sample_rate),
+            "-i",
+            str(input_file),
+            "-codec:a",
+            "libvorbis",
+            "-q:a",
+            str(quality),
+            "-ar",
+            str(sample_rate),
             "-y",  # Overwrite output file
-            str(output_file)
+            str(output_file),
         ]
 
         try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             return True
         except subprocess.CalledProcessError as e:
             raise AudioProcessingError(
@@ -128,7 +127,7 @@ class AudioProcessor:
         input_file: Path,
         output_file: Path,
         pixels_per_second: int = 20,
-        bits: int = 8
+        bits: int = 8,
     ) -> bool:
         """Generate waveform peak data for visualization.
 
@@ -146,19 +145,18 @@ class AudioProcessor:
         """
         cmd = [
             "audiowaveform",
-            "-i", str(input_file),
-            "-o", str(output_file),
-            "--pixels-per-second", str(pixels_per_second),
-            "--bits", str(bits)
+            "-i",
+            str(input_file),
+            "-o",
+            str(output_file),
+            "--pixels-per-second",
+            str(pixels_per_second),
+            "--bits",
+            str(bits),
         ]
 
         try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             return True
         except subprocess.CalledProcessError as e:
             raise AudioProcessingError(
@@ -171,7 +169,7 @@ class AudioProcessor:
         output_dir: Path,
         track_id: str,
         bitrate: int = 128,
-        ogg_quality: int = 4
+        ogg_quality: int = 4,
     ) -> Tuple[Path, Path, Path]:
         """Process a single track: convert to web formats and generate peaks.
 
@@ -208,7 +206,7 @@ class AudioProcessor:
         self.convert_to_ogg(input_file, ogg_path, quality=ogg_quality)
 
         # Generate peaks
-        print(f"  Generating waveform peaks...")
+        print("  Generating waveform peaks...")
         self.generate_peaks(input_file, peaks_path)
 
         return mp3_path, ogg_path, peaks_path
@@ -246,9 +244,7 @@ if __name__ == "__main__":
 
     try:
         mp3, ogg, peaks = processor.process_track(
-            input_path,
-            output_dir,
-            track_id="test-track"
+            input_path, output_dir, track_id="test-track"
         )
 
         print("\n✓ Processing complete!")
