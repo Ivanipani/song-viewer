@@ -1,57 +1,87 @@
 import { createTheme, MantineColorsTuple } from '@mantine/core';
 
-// Cool Slate - Primary neutral palette for backgrounds and surfaces
-const coolSlate: MantineColorsTuple = [
-  '#F8FAFB',  // 0 - Almost white, soft blue-gray
-  '#F1F4F7',  // 1 - Very light slate
-  '#E4E9EF',  // 2 - Light cool slate
-  '#D1DBE5',  // 3 - Soft blue-gray
-  '#B8C5D4',  // 4 - Medium slate
-  '#9DB0C4',  // 5 - Cool slate (base)
-  '#7D8FA5',  // 6 - Deeper slate
-  '#5E7389',  // 7 - Steel blue-gray
-  '#45566A',  // 8 - Dark cool gray
-  '#2F3D4D',  // 9 - Deep slate-blue
+// Neon Cyan - Electric blue-cyan for primary elements
+const neonCyan: MantineColorsTuple = [
+  '#E0FFFF',  // 0 - Brightest cyan
+  '#C0FEFF',  // 1 - Very light neon cyan
+  '#9FFDFF',  // 2 - Light electric cyan
+  '#7FFBFF',  // 3 - Bright cyan
+  '#5FF9FF',  // 4 - Medium neon cyan
+  '#3FF7FF',  // 5 - Neon cyan (base)
+  '#00E5FF',  // 6 - Electric cyan
+  '#00D4F0',  // 7 - Deep neon cyan
+  '#00B8D4',  // 8 - Dark electric cyan
+  '#0097A7',  // 9 - Deepest cyan
 ];
 
-// Cool Steel - Primary accent color for interactive elements
-const coolSteel: MantineColorsTuple = [
-  '#F7F9FA',  // 0 - Lightest blue-gray
-  '#ECF1F5',  // 1 - Very light steel
-  '#DCE5ED',  // 2 - Light cool blue
-  '#C8D8E5',  // 3 - Soft steel blue
-  '#AEC3D6',  // 4 - Medium steel
-  '#8FA9C3',  // 5 - Cool steel (base)
-  '#6E8BA8',  // 6 - Rich steel blue
-  '#516F8D',  // 7 - Deep steel
-  '#395571',  // 8 - Dark steel blue
-  '#263D55',  // 9 - Very dark steel
+// Neon Pink - Hot magenta-pink for accents
+const neonPink: MantineColorsTuple = [
+  '#FFE0FF',  // 0 - Brightest pink
+  '#FFC0FF',  // 1 - Very light neon pink
+  '#FF9FFF',  // 2 - Light electric pink
+  '#FF7FFF',  // 3 - Bright magenta
+  '#FF5FFF',  // 4 - Medium neon pink
+  '#FF3FFF',  // 5 - Neon pink (base)
+  '#F500F5',  // 6 - Electric magenta
+  '#D400D4',  // 7 - Deep neon pink
+  '#B800B8',  // 8 - Dark hot pink
+  '#970097',  // 9 - Deepest magenta
 ];
 
-// Cool Gray - Supporting neutral for text and borders
-const coolGray: MantineColorsTuple = [
-  '#F9FAFB',  // 0 - Near white with blue hint
-  '#F3F5F7',  // 1 - Very light cool gray
-  '#E6E9ED',  // 2 - Light blue-gray
-  '#D3D8DF',  // 3 - Soft cool gray
-  '#BCC3CD',  // 4 - Medium cool gray
-  '#A2ABB8',  // 5 - Cool gray (base)
-  '#858FA0',  // 6 - Deeper cool gray
-  '#687487',  // 7 - Dark blue-gray
-  '#4F5968',  // 8 - Very dark cool gray
-  '#383F4C',  // 9 - Almost black with blue tint
+// Neon Green - Lime-green for highlights
+const neonGreen: MantineColorsTuple = [
+  '#E0FFE0',  // 0 - Brightest lime
+  '#C0FFC0',  // 1 - Very light neon green
+  '#9FFF9F',  // 2 - Light electric lime
+  '#7FFF7F',  // 3 - Bright lime
+  '#5FFF5F',  // 4 - Medium neon green
+  '#3FFF3F',  // 5 - Neon green (base)
+  '#00FF00',  // 6 - Pure electric green
+  '#00E500',  // 7 - Deep neon green
+  '#00C800',  // 8 - Dark lime
+  '#00AA00',  // 9 - Deepest green
+];
+
+// Neon Purple - Vibrant violet for special elements
+const neonPurple: MantineColorsTuple = [
+  '#F0E0FF',  // 0 - Brightest purple
+  '#E0C0FF',  // 1 - Very light neon purple
+  '#D09FFF',  // 2 - Light electric violet
+  '#C07FFF',  // 3 - Bright purple
+  '#B05FFF',  // 4 - Medium neon purple
+  '#A03FFF',  // 5 - Neon purple (base)
+  '#8B00FF',  // 6 - Electric violet
+  '#7A00E5',  // 7 - Deep neon purple
+  '#6800C8',  // 8 - Dark violet
+  '#5600AA',  // 9 - Deepest purple
+];
+
+// Neon Orange - Fiery orange-yellow for warnings/energy
+const neonOrange: MantineColorsTuple = [
+  '#FFF0E0',  // 0 - Brightest orange
+  '#FFE0C0',  // 1 - Very light neon orange
+  '#FFD09F',  // 2 - Light electric orange
+  '#FFC07F',  // 3 - Bright orange
+  '#FFB05F',  // 4 - Medium neon orange
+  '#FFA03F',  // 5 - Neon orange (base)
+  '#FF8B00',  // 6 - Electric orange
+  '#FF7A00',  // 7 - Deep neon orange
+  '#FF6800',  // 8 - Dark fiery orange
+  '#E55600',  // 9 - Deepest orange
 ];
 
 export const theme = createTheme({
-  // Custom cool neutral color palettes
+  // Vibrant neon color palettes
   colors: {
-    coolSlate,
-    coolSteel,
-    coolGray,
+    neonCyan,
+    neonPink,
+    neonGreen,
+    neonPurple,
+    neonOrange,
   },
 
   // Primary color for interactive elements
-  primaryColor: 'coolSteel',
+  primaryColor: 'neonCyan',
 
   breakpoints: {
     xs: '30em',   // 480px - Large phones

@@ -15,7 +15,7 @@ export function ColorSchemeToggle() {
       variant="subtle"
       size="lg"
       aria-label="Toggle color scheme"
-      color="coolGray"
+      color="neonPurple"
     >
       {computedColorScheme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}
     </ActionIcon>

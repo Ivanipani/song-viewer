@@ -112,7 +112,7 @@ export function HydrateFallback() {
   return (
     <MantineProvider
       theme={theme}
-      defaultColorScheme="light"
+      defaultColorScheme="dark"
       colorSchemeManager={localStorageColorSchemeManager({ key: 'mantine-color-scheme' })}
     >
       <PlayerSkeleton />
@@ -134,7 +134,7 @@ export function ErrorBoundary() {
   return (
     <MantineProvider
       theme={theme}
-      defaultColorScheme="light"
+      defaultColorScheme="dark"
       colorSchemeManager={localStorageColorSchemeManager({ key: 'mantine-color-scheme' })}
     >
       <Box style={{ padding: '2rem', textAlign: 'center', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -167,7 +167,7 @@ export default function Root() {
   return (
     <MantineProvider
       theme={theme}
-      defaultColorScheme="light"
+      defaultColorScheme="dark"
       colorSchemeManager={localStorageColorSchemeManager({ key: 'mantine-color-scheme' })}
     >
       <NavigationProgress />

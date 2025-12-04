@@ -118,7 +118,8 @@ export default function TrackLayout({}: Route.ComponentProps) {
         p="md"
         style={{
           borderBottom:
-            "1px solid light-dark(var(--mantine-color-coolSlate-3), var(--mantine-color-coolGray-7))",
+            "1px solid light-dark(var(--mantine-color-neonCyan-3), rgba(0, 229, 255, 0.3))",
+          boxShadow: "0 2px 12px rgba(0, 229, 255, 0.15)",
           flexShrink: 0,
         }}
       >

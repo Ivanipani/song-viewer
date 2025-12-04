@@ -13,7 +13,8 @@
 }
 
 .track:hover {
-  background-color: light-dark(var(--mantine-color-coolSlate-2), var(--mantine-color-coolGray-7));
+  background-color: light-dark(var(--mantine-color-neonCyan-1), rgba(0, 229, 255, 0.15));
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
 }
 
 .track:active {
@@ -28,8 +29,9 @@
   flex-direction: row;
   align-items: center;
   width: 100%;
-  background-color: light-dark(var(--mantine-color-coolSteel-2), var(--mantine-color-coolSteel-8));
+  background-color: light-dark(var(--mantine-color-neonCyan-2), rgba(0, 229, 255, 0.25));
+  border: 1px solid var(--mantine-color-neonCyan-6);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.5), inset 0 0 8px rgba(0, 229, 255, 0.2);
   transition: all 0.2s ease-in-out;
   cursor: pointer;
-  border: 1px solid
 }

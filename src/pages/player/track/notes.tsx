@@ -138,11 +138,14 @@ export default function NotesView() {
                     ff="monospace"
                     bg={
                       computedColorScheme === "dark"
-                        ? "coolGray.8"
-                        : "coolSlate.2"
+                        ? "rgba(0, 229, 255, 0.1)"
+                        : "neonCyan.1"
                     }
                     p="2px 6px"
-                    style={{ borderRadius: 4 }}
+                    style={{
+                      borderRadius: 4,
+                      border: "1px solid rgba(0, 229, 255, 0.3)"
+                    }}
                   >
                     {children}
                   </Text>
@@ -152,12 +155,13 @@ export default function NotesView() {
                     p="sm"
                     bg={
                       computedColorScheme === "dark"
-                        ? "coolGray.9"
-                        : "coolSlate.1"
+                        ? "rgba(0, 229, 255, 0.05)"
+                        : "neonCyan.0"
                     }
                     mb="sm"
                     style={{
-                      borderLeft: "4px solid var(--mantine-color-coolSteel-6)",
+                      borderLeft: "4px solid var(--mantine-color-neonCyan-6)",
+                      boxShadow: "-4px 0 8px rgba(0, 229, 255, 0.2)",
                     }}
                   >
                     {children}
