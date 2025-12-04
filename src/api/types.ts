@@ -51,6 +51,40 @@ export interface TrackLyrics {
     content?: string;
 }
 
+export interface AudioFileVariant {
+    url: string;
+    format: 'mp3' | 'ogg';
+}
+
+export interface TrackStem {
+    id: string;
+    name: string;
+    color: string;
+    order: number;
+    audio_files: AudioFileVariant[];
+    peaks_url: string;
+    muted: boolean;
+    solo: boolean;
+    source_files?: string[];
+}
+
+export interface MixingProject {
+    project_path: string;
+    project_file: string;
+    last_processed: string;
+    tracks: TrackStem[];
+}
+
+export interface WaveformPeaks {
+    version: number;
+    channels: number;
+    sample_rate: number;
+    samples_per_pixel: number;
+    bits: number;
+    length: number;
+    data: number[];
+}
+
 export interface ExtendedMetadata {
     performance?: TrackPerformance;
     recording?: TrackRecording;
@@ -59,6 +93,7 @@ export interface ExtendedMetadata {
     tags?: string[];
     inspiration?: string;
     related_tracks?: string[];
+    mixing?: MixingProject;
 }
 
 export interface TrackNotes {

@@ -14,14 +14,16 @@
         force: true
       register: git_status
 
-    - name: Install npm dependencies
+    - name: Install dependencies
       ansible.builtin.command:
-        cmd: npm install
+        cmd: bun install
         chdir: "{{ local_repo_path }}"
+      environment:
+        PATH: "{{ ansible_env.PATH }}:~/.bun/bin"
 
     - name: Build React app
       ansible.builtin.command:
-        cmd: npm run build
+        cmd: bun run build
         chdir: "{{ local_repo_path }}"
 
 - name: Deploy React build to web server

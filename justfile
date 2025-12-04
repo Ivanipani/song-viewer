@@ -3,6 +3,45 @@ set unstable
 default:
     @just --list
 
+# Install dependencies using Bun
+install:
+    bun install
+
+# Run development server
+dev:
+    bun run dev
+
+# Build for production
+build:
+    bun run build
+
+# Build for development
+build-dev:
+    bun run build-dev
+
+# Run tests
+test:
+    bun test
+
+# Run tests in watch mode
+test-watch:
+    bun test --watch
+
+# Run linter
+lint:
+    bun run lint
+
+# Type check the codebase
+typecheck:
+    bun run typecheck
+
+# Clean build artifacts and dependencies
+clean:
+    rm -rf node_modules build .react-router bun.lockb
+
+# Fresh install (clean + install)
+fresh: clean install
+
 # Configure NGINX + deploy React application to production
 [working-directory: 'playbook']
 deploy-prod:
@@ -38,4 +77,9 @@ run-single:
     PLAYBOOK=$(ls deploy*.yml | fzf)
     echo "Running playbook: $PLAYBOOK"
     ansible-playbook "$PLAYBOOK"
+
+# Run catalog-manager
+[working-directory: 'catalog-manager']
+catalog-manager *args:
+    uv run catalog-manager {{args}}
 

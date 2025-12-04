@@ -1,6 +1,6 @@
 import yaml from "js-yaml";
 import { AudioCatalog, ExtendedMetadata, TrackNotes } from "./types";
-import { MEDIA_API_URL, FOTOS_API_URL } from "./constants";
+import { MEDIA_API_URL, FOTOS_API_URL } from "./config";
 
 /**
  * Fetches a list of songs from the API endpoint

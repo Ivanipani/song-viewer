@@ -21,22 +21,28 @@ server {
         
         add_header 'Access-Control-Allow-Origin' $cors_origin always;
         add_header 'Vary' 'Origin' always;
-        
-        # Keep your existing content type headers
-        add_header Content-Type application/octet-stream;
-        
-        # Configure content types for audio files
+
+        # Configure content types for audio files and peak data
         types {
             audio/mpeg mp3;
             audio/ogg  ogg;
             audio/wav  wav;
             audio/aac  aac;
             audio/flac flac;
+            application/json json;
         }
 
         # Set cache control for audio files with revalidation
         expires 6h;
         add_header Cache-Control "public, must-revalidate";
+
+        # Specific handling for JSON peak files
+        location ~ \.json$ {
+            add_header Content-Type application/json;
+            add_header 'Access-Control-Allow-Origin' $cors_origin always;
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
     }
 
     location / {

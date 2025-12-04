@@ -1,20 +1,82 @@
-# Extended Metadata for Diciembre 29 en casa
-
 performance:
-  date: "2024-12-29"
-
+  date: '2024-12-29'
 theory:
-  key: "Em"
-  time_signature: "4/4"
+  key: Em
+  time_signature: 4/4
   tempo_bpm: 72
-
 recording:
-  interface: "Focusrite 8i6"
-  daw: "REAPER"
-
-
+  interface: Focusrite 8i6
+  daw: REAPER
 tags:
-  - "lo-fi"
-  - "intimate"
-  - "reflective"
-  - "holiday"
+- lo-fi
+- intimate
+- reflective
+- holiday
+mixing:
+  project_path: Diciembre 29 en casa
+  project_file: Diciembre 29 en casa.RPP
+  last_processed: '2025-12-01T15:10:02.035696'
+  tracks:
+  - id: 03-guitar-1-2412291233wav
+    name: 03-Guitar 1-241229_1233.wav
+    color: '#1c74a8'
+    order: 0
+    audio_files:
+    - url: tracks/03-guitar-1-2412291233wav.mp3
+      format: mp3
+    - url: tracks/03-guitar-1-2412291233wav.ogg
+      format: ogg
+    peaks_url: tracks/03-guitar-1-2412291233wav.json
+    muted: false
+    solo: false
+    source_files:
+    - Media/03-Guitar 1-241229_1226-glued.wav
+    - Media/03-Guitar 1-241229_1233.wav
+  - id: 04-guitar-2-2412291239-gluedwav
+    name: 04-Guitar 2-241229_1239-glued.wav
+    color: '#2f89e6'
+    order: 1
+    audio_files:
+    - url: tracks/04-guitar-2-2412291239-gluedwav.mp3
+      format: mp3
+    - url: tracks/04-guitar-2-2412291239-gluedwav.ogg
+      format: ogg
+    peaks_url: tracks/04-guitar-2-2412291239-gluedwav.json
+    muted: false
+    solo: false
+    source_files:
+    - Media/04-Guitar 2-241229_1230-02.wav
+    - Media/04-Guitar 2-241229_1239-glued.wav
+  - id: 05-lead-a-2412291819-01wav
+    name: 05-Lead A-241229_1819-01.wav
+    color: '#c04000'
+    order: 2
+    audio_files:
+    - url: tracks/05-lead-a-2412291819-01wav.mp3
+      format: mp3
+    - url: tracks/05-lead-a-2412291819-01wav.ogg
+      format: ogg
+    peaks_url: tracks/05-lead-a-2412291819-01wav.json
+    muted: false
+    solo: false
+    source_files:
+    - Media/05-241229_1801.wav
+    - Media/05-241229_1319-01-glued.wav
+    - Media/05-Lead A-241229_1814.wav
+    - Media/05-Lead A-241229_1819-01.wav
+  - id: lead-b
+    name: Lead B
+    color: '#c04000'
+    order: 3
+    audio_files:
+    - url: tracks/lead-b.mp3
+      format: mp3
+    - url: tracks/lead-b.ogg
+      format: ogg
+    peaks_url: tracks/lead-b.json
+    muted: false
+    solo: false
+    source_files:
+    - Media/06-241229_1743.wav
+    - Media/06-241229_1805-01.wav
+    - Media/06-241229_1809.wav

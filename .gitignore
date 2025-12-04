@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+bun.lockb
 dist
 dist-ssr
 *.local
@@ -29,3 +30,5 @@ build
 CLAUDE.md
 *.mp3
 *.png
+*.ogg
+catalog-manager/catalog/**/*.json
