@@ -46,6 +46,7 @@ import {
   ScrollArea,
 } from "@mantine/core";
 import { AudioCatalog } from "../../../api/types";
+import { config } from "../../../api/config";
 
 export default function TrackLayout({}: Route.ComponentProps) {
   const { trackId } = useParams();
@@ -136,7 +137,9 @@ export default function TrackLayout({}: Route.ComponentProps) {
           data={[
             { label: "Notes", value: "notes" },
             // { label: "Chords", value: "chords" },
-            { label: "Tracks", value: "tracks" },
+            ...(config.features.tracksView
+              ? [{ label: "Tracks", value: "tracks" }]
+              : []),
           ]}
         />
       </Paper>

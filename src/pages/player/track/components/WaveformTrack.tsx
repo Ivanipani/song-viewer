@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Box, Group, ActionIcon, Text, Skeleton } from "@mantine/core";
 import WaveSurfer from "wavesurfer.js";
 import { TrackStem } from "../../../../api/types";
+import { MEDIA_API_URL } from "../../../../api/config";
 
 interface WaveformTrackProps {
   track: TrackStem;
@@ -12,8 +13,6 @@ interface WaveformTrackProps {
   onToggleMute: () => void;
   onToggleSolo: () => void;
 }
-
-const MEDIA_API_URL = import.meta.env.VITE_MEDIA_API_URL || "http://localhost:5001/media";
 
 export function WaveformTrack({
   track,

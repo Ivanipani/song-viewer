@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Howl } from "howler";
 import { TrackStem } from "../api/types";
+import { MEDIA_API_URL } from "../api/config";
 
 interface TrackState {
   stem: TrackStem;
@@ -33,8 +34,6 @@ interface UseMultiTrackPlayerReturn {
   toggleSolo: (trackId: string) => void;
   setVolume: (trackId: string, volume: number) => void;
 }
-
-const MEDIA_API_URL = import.meta.env.VITE_MEDIA_API_URL || "http://localhost:5001/media";
 
 /**
  * Custom hook for managing multi-track audio playback
