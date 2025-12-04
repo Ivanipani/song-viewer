@@ -2,7 +2,7 @@ import { describe, test, expect, mock, beforeEach } from "bun:test";
 import { fetchAudioCatalog, fetchPhotos, fetchTrackNotes, fetchTrackMetadata } from "../../api/media";
 
 // Mock global fetch
-const mockFetch = mock(() => Promise.resolve());
+const mockFetch = mock(() => Promise.resolve({} as any));
 global.fetch = mockFetch as any;
 
 beforeEach(() => {
